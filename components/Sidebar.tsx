@@ -1,13 +1,13 @@
 
 import React, { useState } from 'react';
-import { 
-  RefreshCcw, 
-  LayoutDashboard, 
-  Newspaper, 
-  Home, 
-  Heart, 
-  Map as MapIcon, 
-  Contact, 
+import {
+  RefreshCcw,
+  LayoutDashboard,
+  Newspaper,
+  Home,
+  Heart,
+  Map as MapIcon,
+  Contact,
   CreditCard,
   LogOut,
   Mail,
@@ -34,9 +34,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   setIsOpen
 }) => {
-  // Trạng thái hover tạm thời
+  // Trạng thái hover tạm thời (Chỉ dành cho Desktop)
   const [isDesktopHovered, setIsDesktopHovered] = useState(false);
-  // Trạng thái ghim cố định
+  // Trạng thái ghim cố định (Chỉ dành cho Desktop)
   const [isPinned, setIsPinned] = useState(false);
 
   const navItems: { id: ViewType; label: string; icon: React.ReactNode; category?: string }[] = [
@@ -52,26 +52,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'zalo_marketing', label: 'Zalo Marketing', icon: <MessageCircle className="w-5 h-5" /> },
   ];
 
-  // Sidebar mở rộng khi được PIN hoặc đang được HOVER
-  const isExpanded = isPinned || isDesktopHovered;
+  // Logic hiển thị: 
+  // - Trên Mobile: Luôn coi là "expanded" để hiện chữ khi drawer mở.
+  // - Trên Desktop: Chỉ "expanded" khi được PIN hoặc đang được HOVER.
+  const isExpandedDesktop = isPinned || isDesktopHovered;
 
   return (
     <>
       {/* Mobile Backdrop */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[70] lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Sidebar Container */}
-      <aside 
+      <aside
         onMouseEnter={() => setIsDesktopHovered(true)}
         onMouseLeave={() => setIsDesktopHovered(false)}
         className={`fixed top-0 left-0 bottom-0 z-[80] bg-white border-r border-slate-200 flex flex-col transition-all duration-300 ease-in-out shadow-2xl lg:shadow-none lg:sticky
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          ${isExpanded ? 'w-[280px]' : 'w-20'}
+          w-[280px] ${isExpandedDesktop ? 'lg:w-[280px]' : 'lg:w-20'}
         `}
       >
         {/* Header */}
@@ -80,25 +82,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200 flex-shrink-0">
               <RefreshCcw className="w-5 h-5" />
             </div>
-            <span className={`font-black text-xl text-slate-900 tracking-tight whitespace-nowrap transition-all duration-300 ${isExpanded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 pointer-events-none'}`}>
+            {/* Chữ BDSDaily: Luôn hiện trên Mobile, Trên Desktop hiện khi Expanded */}
+            <span className={`font-black text-xl text-slate-900 tracking-tight whitespace-nowrap transition-all duration-300 
+              ${isExpandedDesktop ? 'lg:opacity-100 lg:translate-x-0' : 'lg:opacity-0 lg:-translate-x-4 lg:pointer-events-none'}
+              opacity-100 translate-x-0
+            `}>
               BDSDaily
             </span>
           </div>
-          
+
           {/* Desktop Pin Button */}
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setIsPinned(!isPinned);
             }}
-            className={`hidden lg:flex p-1.5 rounded-lg transition-all duration-300 ${isExpanded ? 'opacity-100 scale-100' : 'opacity-0 scale-50 pointer-events-none'} ${isPinned ? 'bg-indigo-50 text-indigo-600' : 'text-slate-300 hover:bg-slate-100'}`}
+            className={`hidden lg:flex p-1.5 rounded-lg transition-all duration-300 ${isExpandedDesktop ? 'opacity-100 scale-100' : 'opacity-0 scale-50 pointer-events-none'} ${isPinned ? 'bg-indigo-50 text-indigo-600' : 'text-slate-300 hover:bg-slate-100'}`}
             title={isPinned ? "Bỏ ghim" : "Ghim Sidebar"}
           >
             {isPinned ? <Pin className="w-4 h-4 fill-current" /> : <PinOff className="w-4 h-4" />}
           </button>
 
           {/* Mobile Close Button */}
-          <button 
+          <button
             onClick={() => setIsOpen(false)}
             className="lg:hidden p-2 text-slate-400 hover:text-slate-900"
           >
@@ -110,33 +116,40 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex-1 overflow-y-auto py-6 px-3 space-y-1 custom-scrollbar">
           {navItems.map((item, idx) => (
             <React.Fragment key={idx}>
-              {item.category && isExpanded && (
-                <div className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-4 animate-in fade-in slide-in-from-left-2 duration-300">
+              {/* Category label: Ẩn trên Desktop nếu không Expanded, Luôn hiện trên Mobile */}
+              {item.category && (
+                <div className={`px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-4 animate-in fade-in slide-in-from-left-2 duration-300
+                  ${isExpandedDesktop ? 'lg:block' : 'lg:hidden'}
+                  block
+                `}>
                   {item.category}
                 </div>
               )}
               <button
-                onClick={() => setCurrentView(item.id)}
-                className={`w-full flex items-center gap-4 p-4 lg:p-3.5 rounded-2xl text-sm font-bold transition-all group relative ${
-                  currentView === item.id 
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                    : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'
-                }`}
+                onClick={() => {
+                  setCurrentView(item.id);
+                  setIsOpen(false); // Đóng sidebar mobile sau khi chọn
+                }}
+                className={`w-full flex items-center gap-4 p-4 lg:p-3.5 rounded-2xl text-sm font-bold transition-all group relative ${currentView === item.id
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'
+                  }`}
               >
-                <div className={`flex-shrink-0 transition-colors ${
-                  currentView === item.id ? 'text-white' : 'text-slate-400 group-hover:text-indigo-500'
-                }`}>
+                <div className={`flex-shrink-0 transition-colors ${currentView === item.id ? 'text-white' : 'text-slate-400 group-hover:text-indigo-500'
+                  }`}>
                   {item.icon}
                 </div>
-                
-                <span className={`whitespace-nowrap transition-all duration-300 ${
-                  isExpanded ? 'opacity-100 translate-x-0' : 'lg:opacity-0 lg:-translate-x-4 pointer-events-none'
-                }`}>
+
+                {/* Item label: Logic tương tự Header */}
+                <span className={`whitespace-nowrap transition-all duration-300 
+                  ${isExpandedDesktop ? 'lg:opacity-100 lg:translate-x-0' : 'lg:opacity-0 lg:-translate-x-4 lg:pointer-events-none'}
+                  opacity-100 translate-x-0
+                `}>
                   {item.label}
                 </span>
 
-                {currentView === item.id && isExpanded && (
-                  <div className="ml-auto w-1.5 h-1.5 bg-white rounded-full"></div>
+                {currentView === item.id && (
+                  <div className={`ml-auto w-1.5 h-1.5 bg-white rounded-full ${isExpandedDesktop ? 'lg:block' : 'lg:hidden'} block`}></div>
                 )}
               </button>
             </React.Fragment>
@@ -144,15 +157,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Footer */}
-        <div className={`p-4 mt-auto transition-all duration-300 ${isExpanded ? 'bg-slate-900' : 'bg-white border-t border-slate-100'}`}>
-          {isExpanded ? (
+        <div className={`p-4 mt-auto transition-all duration-300 ${isExpandedDesktop ? 'lg:bg-slate-900' : 'lg:bg-white lg:border-t lg:border-slate-100'} bg-slate-900 lg:static`}>
+          {/* Footer content logic */}
+          <div className={`${isExpandedDesktop ? 'lg:block' : 'lg:hidden'} block`}>
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-center justify-between px-1">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   <span className="text-[10px] text-white/60 font-black uppercase tracking-widest">Active</span>
                 </div>
-                <button 
+                <button
                   onClick={onLogout}
                   className="text-red-400 hover:text-red-300 transition-colors text-[10px] font-black uppercase"
                 >
@@ -169,10 +183,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               </div>
             </div>
-          ) : (
-            <button 
+          </div>
+
+          {/* Icon Logout khi thu gọn (Chỉ Desktop) */}
+          {!isExpandedDesktop && (
+            <button
               onClick={onLogout}
-              className="w-full flex items-center justify-center p-4 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all"
+              className="hidden lg:flex w-full items-center justify-center p-4 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all"
             >
               <LogOut className="w-6 h-6" />
             </button>

@@ -1,0 +1,4 @@
+sudo mkdir -p /var/www/bdsdaily
+sudo cp -r /root/projects/node/bdsdaily/dist /var/www/bdsdaily/
+sudo chown -R www-data:www-data /var/www/bdsdaily
+sudo chmod -R 755 /var/www/bdsdaily
