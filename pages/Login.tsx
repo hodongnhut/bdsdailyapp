@@ -19,14 +19,14 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setLoading(true);
     setError(null);
 
-    const apiUrl = '/api/auth/login';
+    const apiUrl = '/auth/login';
 
     try {
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json, text/xml, */*'
+          'Accept': 'application/json'
         },
         body: JSON.stringify({
           username: form.identifier,
@@ -208,7 +208,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </div>
 
         <p className="text-center mt-10 text-slate-400 text-sm font-medium">
-          © 2024 BDSDaily Ecosystem. Bản quyền thuộc về Team Dev.
+          © 2024 BDSDaily. Bản quyền thuộc về StoneNetwork.
         </p>
       </div>
     </div>
