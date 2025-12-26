@@ -19,7 +19,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setLoading(true);
     setError(null);
 
-    const apiUrl = '/auth/login';
+    const apiUrl = '/api/auth/login';
 
     try {
       const response = await fetch(apiUrl, {
