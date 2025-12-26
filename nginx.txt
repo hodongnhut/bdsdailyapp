@@ -9,7 +9,7 @@ server {
     ssl_certificate /etc/letsencrypt/live/web.bdsdaily.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/web.bdsdaily.com/privkey.pem;
 
-    root /var/www/hiboss/dist;
+    root /var/www/bdsdaily/dist;
     index index.html;
 
 

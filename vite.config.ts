@@ -1,16 +1,25 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // Khi frontend gọi /api/..., Vite sẽ chuyển hướng đến https://app.bdsdaily.com/api/...
       '/api': {
         target: 'https://app.bdsdaily.com',
         changeOrigin: true,
         secure: true,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('Proxy Error (Production):', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('>>> Proxying to Production:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('<<< Response from Production:', proxyRes.statusCode, req.url);
+          });
+        },
       },
     },
   },

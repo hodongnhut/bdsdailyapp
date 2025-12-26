@@ -19,8 +19,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setLoading(true);
     setError(null);
 
-    // Sử dụng đường dẫn tương đối. 
-    // Nhờ cấu hình proxy trong vite.config.ts, /api sẽ được map tới https://app.bdsdaily.com
     const apiUrl = '/api/auth/login';
 
     try {
@@ -28,7 +26,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json, text/xml, */*'
         },
         body: JSON.stringify({
           username: form.identifier,
@@ -39,9 +37,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       const result = await response.json();
 
       if (result.status === true) {
-        // Lưu token vào localStorage
         localStorage.setItem('access_token', result.data.access_token);
-        // Truyền dữ liệu user về App.tsx
         onLogin(result.data);
       } else {
         setError(result.msg || 'Tên đăng nhập hoặc mật khẩu không chính xác.');
@@ -57,7 +53,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const handleReset = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Giả lập gửi email phục hồi
     setTimeout(() => {
       setLoading(false);
       setResetSent(true);
@@ -112,7 +107,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     onClick={() => { setView('forgot'); setResetSent(false); setError(null); }}
                     className="text-[10px] font-black text-indigo-600 uppercase hover:underline"
                   >
-                    Quên?
+                    Quên mật khẩu?
                   </button>
                 </div>
                 <div className="relative group">
