@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { RefreshCcw, User, Lock, ArrowRight, ArrowLeft, Mail, AlertCircle } from 'lucide-react';
+import { RefreshCcw, User, Lock, ArrowRight, ArrowLeft, Mail, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 interface LoginProps {
   onLogin: (userData: any) => void;
@@ -12,6 +12,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [view, setView] = useState<'login' | 'forgot'>('login');
   const [form, setForm] = useState({ identifier: '', password: '', resetEmail: '' });
   const [resetSent, setResetSent] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,13 +120,21 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     <Lock className="w-5 h-5" />
                   </div>
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                     placeholder="••••••••"
-                    className="block w-full pl-12 pr-4 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-bold text-base"
+                    className="block w-full pl-12 pr-12 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-bold text-base"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-5 flex items-center text-slate-400 hover:text-indigo-600 transition-colors"
+                    aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </div>
 
