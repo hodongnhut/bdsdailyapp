@@ -1,25 +1,56 @@
 
 import React, { useState } from 'react';
-import { RefreshCcw, User, Lock, ArrowRight, ArrowLeft, Mail } from 'lucide-react';
+import { RefreshCcw, User, Lock, ArrowRight, ArrowLeft, Mail, AlertCircle } from 'lucide-react';
 
 interface LoginProps {
-  onLogin: (identifier: string) => void;
+  onLogin: (userData: any) => void;
 }
 
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [view, setView] = useState<'login' | 'forgot'>('login');
   const [form, setForm] = useState({ identifier: '', password: '', resetEmail: '' });
   const [resetSent, setResetSent] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Giả lập xử lý đăng nhập
-    setTimeout(() => {
-      onLogin(form.identifier);
+    setError(null);
+
+    // Sử dụng đường dẫn tương đối. 
+    // Nhờ cấu hình proxy trong vite.config.ts, /api sẽ được map tới https://app.bdsdaily.com
+    const apiUrl = '/api/auth/login';
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          username: form.identifier,
+          password: form.password,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === true) {
+        // Lưu token vào localStorage
+        localStorage.setItem('access_token', result.data.access_token);
+        // Truyền dữ liệu user về App.tsx
+        onLogin(result.data);
+      } else {
+        setError(result.msg || 'Tên đăng nhập hoặc mật khẩu không chính xác.');
+      }
+    } catch (err) {
+      setError('Lỗi kết nối hệ thống. Vui lòng kiểm tra lại đường truyền hoặc Proxy.');
+      console.error('Login error:', err);
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   const handleReset = (e: React.FormEvent) => {
@@ -42,25 +73,32 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <h1 className="text-4xl font-black text-slate-900 tracking-tighter">BDSDaily</h1>
           <p className="text-slate-500 mt-3 font-medium text-lg">Hệ thống quản lý dữ liệu BĐS 4.0</p>
         </div>
-        
+
         <div className="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-white p-10 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-          
+
           {view === 'login' ? (
             <form onSubmit={handleSubmit} className="space-y-7">
+              {error && (
+                <div className="bg-rose-50 border border-rose-100 p-4 rounded-2xl flex items-start gap-3 text-rose-600 text-xs font-bold animate-in slide-in-from-top-2">
+                  <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <div className="leading-relaxed">{error}</div>
+                </div>
+              )}
+
               <div className="space-y-2">
-                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Email / Mã nhân viên</label>
+                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Tên đăng nhập</label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
                     <User className="w-5 h-5" />
                   </div>
-                  <input 
-                    type="text" 
-                    required 
-                    value={form.identifier} 
-                    onChange={(e) => setForm({...form, identifier: e.target.value})} 
-                    placeholder="nhanvien@bdsdaily.com" 
-                    className="block w-full pl-12 pr-4 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-bold text-base" 
+                  <input
+                    type="text"
+                    required
+                    value={form.identifier}
+                    onChange={(e) => setForm({ ...form, identifier: e.target.value })}
+                    placeholder="admin"
+                    className="block w-full pl-12 pr-4 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-bold text-base"
                   />
                 </div>
               </div>
@@ -68,9 +106,9 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between ml-1">
                   <label className="block text-xs font-black text-slate-400 uppercase tracking-widest">Mật khẩu</label>
-                  <button 
-                    type="button" 
-                    onClick={() => { setView('forgot'); setResetSent(false); }}
+                  <button
+                    type="button"
+                    onClick={() => { setView('forgot'); setResetSent(false); setError(null); }}
                     className="text-[10px] font-black text-indigo-600 uppercase hover:underline"
                   >
                     Quên?
@@ -80,20 +118,20 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
                     <Lock className="w-5 h-5" />
                   </div>
-                  <input 
-                    type="password" 
-                    required 
-                    value={form.password} 
-                    onChange={(e) => setForm({...form, password: e.target.value})} 
-                    placeholder="••••••••" 
-                    className="block w-full pl-12 pr-4 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-bold text-base" 
+                  <input
+                    type="password"
+                    required
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    placeholder="••••••••"
+                    className="block w-full pl-12 pr-4 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-bold text-base"
                   />
                 </div>
               </div>
 
-              <button 
-                type="submit" 
-                disabled={loading} 
+              <button
+                type="submit"
+                disabled={loading}
                 className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-black py-5 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xl active:scale-[0.98] disabled:opacity-70"
               >
                 {loading ? (
@@ -108,7 +146,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </form>
           ) : (
             <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-              <button 
+              <button
                 onClick={() => setView('login')}
                 className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest hover:text-indigo-600 mb-8 transition-colors"
               >
@@ -126,20 +164,20 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                       <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
                         <Mail className="w-5 h-5" />
                       </div>
-                      <input 
-                        type="email" 
-                        required 
+                      <input
+                        type="email"
+                        required
                         value={form.resetEmail}
-                        onChange={(e) => setForm({...form, resetEmail: e.target.value})}
-                        placeholder="email@example.com" 
-                        className="block w-full pl-12 pr-4 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-bold text-base" 
+                        onChange={(e) => setForm({ ...form, resetEmail: e.target.value })}
+                        placeholder="email@example.com"
+                        className="block w-full pl-12 pr-4 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none font-bold text-base"
                       />
                     </div>
                   </div>
 
-                  <button 
-                    type="submit" 
-                    disabled={loading} 
+                  <button
+                    type="submit"
+                    disabled={loading}
                     className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-5 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xl active:scale-[0.98] disabled:opacity-70"
                   >
                     {loading ? (
@@ -164,7 +202,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </div>
           )}
         </div>
-        
+
         <p className="text-center mt-10 text-slate-400 text-sm font-medium">
           © 2024 BDSDaily Ecosystem. Bản quyền thuộc về Team Dev.
         </p>

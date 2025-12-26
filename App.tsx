@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppUser, ViewType, NewsItem, PropertyItem } from './types';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './pages/Dashboard';
@@ -17,9 +17,10 @@ import { X, Menu, ShieldAlert, RefreshCcw } from 'lucide-react';
 
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  
+
   const [users, setUsers] = useState<AppUser[]>([
     { id: '1', name: 'Nguyễn Văn A', email: 'vana@bdsdaily.com', role: 'Admin', views: 1250, status: 'online' },
     { id: '2', name: 'Trần Thị B', email: 'thib@bdsdaily.com', role: 'Editor', views: 840, status: 'online' },
@@ -28,19 +29,19 @@ const App: React.FC = () => {
   ]);
 
   const [news, setNews] = useState<NewsItem[]>([
-    { 
-      id: '1', 
-      title: 'Cập nhật thị trường tháng 5/2024', 
-      content: 'Thị trường bất động sản ghi nhận nhiều biến động tích cực tại khu vực phía Đông TP.HCM với sự nóng lên của các dự án đất nền và căn hộ cao cấp.', 
-      category: 'Thị trường', 
+    {
+      id: '1',
+      title: 'Cập nhật thị trường tháng 5/2024',
+      content: 'Thị trường bất động sản ghi nhận nhiều biến động tích cực tại khu vực phía Đông TP.HCM với sự nóng lên của các dự án đất nền và căn hộ cao cấp.',
+      category: 'Thị trường',
       date: '2024-05-22',
       imageUrl: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=800'
     },
-    { 
-      id: '2', 
-      title: 'Quy hoạch mới tại khu vực Thủ Đức', 
-      content: 'Chính quyền thành phố vừa công bố lộ trình quy hoạch chi tiết các trục đường huyết mạch, hứa hẹn tạo cú hích cho giá trị bất động sản lân cận.', 
-      category: 'Quy hoạch', 
+    {
+      id: '2',
+      title: 'Quy hoạch mới tại khu vực Thủ Đức',
+      content: 'Chính quyền thành phố vừa công bố lộ trình quy hoạch chi tiết các trục đường huyết mạch, hứa hẹn tạo cú hích cho giá trị bất động sản lân cận.',
+      category: 'Quy hoạch',
       date: '2024-05-21',
       imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800'
     }
@@ -91,8 +92,25 @@ const App: React.FC = () => {
   const [editingUser, setEditingUser] = useState<AppUser | null>(null);
   const [userFormData, setUserFormData] = useState({ name: '', email: '', role: 'Viewer', views: 0 });
 
-  const handleLogin = (identifier: string) => {
+  // Kiểm tra token cũ khi ứng dụng khởi động
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      // Ở ứng dụng thực tế, ta nên gọi API verify token ở đây
+      // Hiện tại ta chỉ giả sử session còn hiệu lực
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const handleLogin = (loginData: any) => {
     setIsLoggedIn(true);
+    setCurrentUser(loginData.user);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+    localStorage.removeItem('access_token');
   };
 
   const handleSaveUser = (e: React.FormEvent) => {
@@ -154,7 +172,7 @@ const App: React.FC = () => {
           </div>
           <span className="font-black text-lg text-slate-900">BDSDaily</span>
         </div>
-        <button 
+        <button
           onClick={() => setIsSidebarOpen(true)}
           className="p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
         >
@@ -162,30 +180,31 @@ const App: React.FC = () => {
         </button>
       </div>
 
-      <Sidebar 
-        currentView={currentView} 
+      <Sidebar
+        currentView={currentView}
         setCurrentView={(view) => {
           setCurrentView(view);
           setIsSidebarOpen(false);
         }}
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
-        onLogout={() => setIsLoggedIn(false)}
+        onLogout={handleLogout}
+        user={currentUser}
       />
 
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto p-4 md:p-8 lg:p-12 max-w-[1600px]">
           {currentView === 'dashboard' && (
-            <Dashboard 
-              users={users} 
-              onAddUser={() => { setEditingUser(null); setUserFormData({name: '', email: '', role: 'Viewer', views: 0}); setIsModalOpen(true); }}
-              onEditUser={(user) => { setEditingUser(user); setUserFormData({name: user.name, email: user.email, role: user.role, views: user.views}); setIsModalOpen(true); }}
+            <Dashboard
+              users={users}
+              onAddUser={() => { setEditingUser(null); setUserFormData({ name: '', email: '', role: 'Viewer', views: 0 }); setIsModalOpen(true); }}
+              onEditUser={(user) => { setEditingUser(user); setUserFormData({ name: user.name, email: user.email, role: user.role, views: user.views }); setIsModalOpen(true); }}
               onDeleteUser={(id) => setUsers(users.filter(u => u.id !== id))}
             />
           )}
-          
+
           {currentView === 'news' && (
-            <News 
+            <News
               news={news}
               onAdd={handleAddNews}
               onUpdate={handleUpdateNews}
@@ -194,8 +213,8 @@ const App: React.FC = () => {
           )}
 
           {currentView === 'property_data' && (
-            <PropertyData 
-              properties={properties} 
+            <PropertyData
+              properties={properties}
               onAdd={handleAddProperty}
               onUpdate={handleUpdateProperty}
               onDelete={handleDeleteProperty}
@@ -203,9 +222,9 @@ const App: React.FC = () => {
           )}
 
           {currentView === 'favorites' && (
-            <Favorites 
-              properties={properties} 
-              onRemoveFavorite={(id) => console.log('Remove favorite:', id)} 
+            <Favorites
+              properties={properties}
+              onRemoveFavorite={(id) => console.log('Remove favorite:', id)}
             />
           )}
 
@@ -232,15 +251,15 @@ const App: React.FC = () => {
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white rounded-xl transition-all"><X className="w-5 h-5 text-slate-400" /></button>
             </div>
             <form onSubmit={handleSaveUser} className="p-6 md:p-8 space-y-5">
-              <input type="text" placeholder="Họ tên nhân viên" required value={userFormData.name} onChange={e => setUserFormData({...userFormData, name: e.target.value})} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 text-base" />
-              <input type="email" placeholder="Email công ty" required value={userFormData.email} onChange={e => setUserFormData({...userFormData, email: e.target.value})} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 text-base" />
+              <input type="text" placeholder="Họ tên nhân viên" required value={userFormData.name} onChange={e => setUserFormData({ ...userFormData, name: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 text-base" />
+              <input type="email" placeholder="Email công ty" required value={userFormData.email} onChange={e => setUserFormData({ ...userFormData, email: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 text-base" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <select value={userFormData.role} onChange={e => setUserFormData({...userFormData, role: e.target.value})} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-base">
+                <select value={userFormData.role} onChange={e => setUserFormData({ ...userFormData, role: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-base">
                   <option value="Admin">Quản trị viên</option>
                   <option value="Editor">Biên tập viên</option>
                   <option value="Viewer">Nhân viên Sales</option>
                 </select>
-                <input type="number" placeholder="Lượt xem" value={userFormData.views} onChange={e => setUserFormData({...userFormData, views: parseInt(e.target.value) || 0})} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-base" />
+                <input type="number" placeholder="Lượt xem" value={userFormData.views} onChange={e => setUserFormData({ ...userFormData, views: parseInt(e.target.value) || 0 })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-base" />
               </div>
               <button type="submit" className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-black py-5 rounded-2xl shadow-xl mt-4 transition-all text-lg active:scale-95">
                 {editingUser ? 'LƯU THAY ĐỔI' : 'TẠO NHÂN VIÊN'}

@@ -1,4 +1,5 @@
 
+// Fix: Added missing React and useState imports to resolve errors on lines 39, 41, 119, and 158.
 import React, { useState } from 'react';
 import {
   RefreshCcw,
@@ -25,6 +26,7 @@ interface SidebarProps {
   onLogout: () => void;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  user: any; // Thông tin user từ API
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -32,7 +34,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setCurrentView,
   onLogout,
   isOpen,
-  setIsOpen
+  setIsOpen,
+  user
 }) => {
   // Trạng thái hover tạm thời (Chỉ dành cho Desktop)
   const [isDesktopHovered, setIsDesktopHovered] = useState(false);
@@ -131,8 +134,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   setIsOpen(false); // Đóng sidebar mobile sau khi chọn
                 }}
                 className={`w-full flex items-center gap-4 p-4 lg:p-3.5 rounded-2xl text-sm font-bold transition-all group relative ${currentView === item.id
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
+                    : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'
                   }`}
               >
                 <div className={`flex-shrink-0 transition-colors ${currentView === item.id ? 'text-white' : 'text-slate-400 group-hover:text-indigo-500'
@@ -175,10 +178,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               <div className="p-3 bg-white/5 rounded-2xl border border-white/10">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-500 flex items-center justify-center text-white font-black">AD</div>
+                  <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-white font-black">
+                    {user?.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
+                  </div>
                   <div className="overflow-hidden">
-                    <div className="font-bold text-white text-xs truncate">Administrator</div>
-                    <div className="text-white/40 text-[10px] truncate">admin@bdsdaily.com</div>
+                    <div className="font-bold text-white text-xs truncate">{user?.full_name || 'Administrator'}</div>
+                    <div className="text-white/40 text-[10px] truncate">{user?.email || 'admin@bdsdaily.com'}</div>
                   </div>
                 </div>
               </div>
