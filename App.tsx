@@ -222,8 +222,39 @@ const App: React.FC = () => {
     </div>
   );
 
+  const renderView = () => {
+    switch (currentView) {
+      case 'dashboard':
+        return <Dashboard users={users} currentUser={currentUser} />;
+      case 'property_data':
+        return <PropertyData properties={properties} />;
+      case 'news':
+        return <News news={news} currentUser={currentUser} />;
+      case 'favorites':
+        return <Favorites properties={properties} />;
+      case 'sales_directory':
+        return <SalesDirectory users={users} />;
+      case 'loan_check':
+        return <LoanCheck />;
+      case 'email_marketing':
+        return <EmailMarketing />;
+      case 'website_marketing':
+        return <WebsiteMarketing />;
+      case 'zalo_marketing':
+        return <ZaloMarketing />;
+      case 'planning_map':
+        return <PlanningMap />;
+      default:
+        return null;
+    }
+  };
+
+
   if (!isLoggedIn) return <Login onLogin={handleLogin} />;
   if (!isLocationAcquired) return <LocationGuard />;
+
+
+
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-slate-50 font-sans">
@@ -238,19 +269,15 @@ const App: React.FC = () => {
       <Sidebar currentView={currentView} setCurrentView={(view) => { setCurrentView(view); setIsSidebarOpen(false); }} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} onLogout={handleLogout} user={currentUser} />
 
       <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto p-4 md:p-8 lg:p-12 max-w-[1600px]">
-          {currentView === 'dashboard' && <Dashboard users={users} currentUser={currentUser} onAddUser={() => { setEditingUser(null); setUserFormData(initialFormState); setIsModalOpen(true); }} onEditUser={(user) => { setEditingUser(user); setUserFormData({ ...user, password: '' }); setIsModalOpen(true); }} onDeleteUser={(id) => setUsers(users.filter(u => u.id !== id))} />}
-          {currentView === 'property_data' && <PropertyData properties={properties} onAdd={() => { }} onUpdate={() => { }} onDelete={() => { }} />}
-          {currentView === 'news' && <News news={news} currentUser={currentUser} onAdd={() => { }} onUpdate={() => { }} onDelete={() => { }} />}
-          {currentView === 'favorites' && <Favorites properties={properties} onRemoveFavorite={() => { }} />}
-          {currentView === 'planning_map' && <PlanningMap />}
-          {currentView === 'sales_directory' && <SalesDirectory users={users} />}
-          {currentView === 'loan_check' && <LoanCheck />}
-          {currentView === 'email_marketing' && <EmailMarketing />}
-          {currentView === 'website_marketing' && <WebsiteMarketing />}
-          {currentView === 'zalo_marketing' && <ZaloMarketing />}
-        </div>
+        {currentView === 'planning_map' ? (
+          <PlanningMap />
+        ) : (
+          <div className="mx-auto p-4 md:p-8 lg:p-12 max-w-[1600px]">
+            {renderView()}
+          </div>
+        )}
       </main>
+
 
       {/* Shared User Modal */}
       {isModalOpen && (
