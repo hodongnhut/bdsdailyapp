@@ -34,10 +34,18 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         }),
       });
 
+      if (!response.ok) {
+        if (response.status === 404) throw new Error('Không tìm thấy API (404). Sếp check lại UrlManager nhé.');
+        if (response.status === 401) throw new Error('Tài khoản hoặc mật khẩu không đúng.');
+        throw new Error(`Lỗi Server (${response.status}).`);
+      }
+
       const result = await response.json();
+      console.log('Backend Response:', result);
 
       if (result.status === true) {
         localStorage.setItem('access_token', result.data.access_token);
+        localStorage.setItem('user_info', JSON.stringify(result.data.user));
         onLogin(result.data);
       } else {
         setError(result.msg || 'Tên đăng nhập hoặc mật khẩu không chính xác.');

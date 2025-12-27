@@ -19,11 +19,17 @@ export interface AiPromptResponse {
 
 export interface AppUser {
   id: string;
+  staffId: string;
   name: string;
   email: string;
+  phone: string;
+  password?: string;
   role: string;
+  department: string;
   views: number;
   status: 'online' | 'offline';
+  lat?: number;
+  lng?: number;
 }
 
 export interface NewsItem {

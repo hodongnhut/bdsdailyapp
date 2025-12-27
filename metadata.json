@@ -1,5 +1,7 @@
 {
   "name": "BDSDaily",
   "description": "A comprehensive interactive guide and toolkit for migrating legacy Yii2 real estate systems to modern Next.js 14+ App Router architecture.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "geolocation"
+  ]
 }
