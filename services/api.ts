@@ -256,6 +256,47 @@ export const ApiService = {
     },
 
     /**
+   * Lấy danh sách tài sản từ hệ thống
+   */
+    async getProperties(page: number, pageSize: number, searchParams: any = {}): Promise<ApiResponse<any>> {
+        let status: number | undefined;
+        try {
+            // Xây dựng URL với query parameters
+            const params = new URLSearchParams({
+                page: page.toString(),
+                pageSize: pageSize.toString(),
+                ...searchParams
+            });
+
+            const response = await fetch(`/api/property?${params.toString()}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                }
+            });
+            status = response.status;
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const resData = await response.json();
+            return {
+                success: resData.status,
+                message: resData.msg,
+                data: resData.data,
+                status: status
+            };
+        } catch (error) {
+            console.error("ApiService.getProperties failed:", error);
+            return {
+                success: false,
+                message: error instanceof Error ? error.message : "Không thể tải dữ liệu nhà đất",
+                status: status
+            };
+        }
+    },
+
+    /**
      * Cập nhật thông tin nhân viên
      */
     async updateUser(user: AppUser): Promise<ApiResponse<AppUser>> {
