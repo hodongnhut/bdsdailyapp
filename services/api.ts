@@ -49,6 +49,36 @@ export const ApiService = {
             };
         }
     },
+
+    /**
+     * Lấy danh sách tin tức từ hệ thống
+     */
+    async getNews(): Promise<ApiResponse<any[]>> {
+        try {
+            const response = await fetch('/api/news/index', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const resData = await response.json();
+            return {
+                success: resData.status,
+                message: resData.msg,
+                data: resData.data
+            };
+        } catch (error) {
+            console.error("ApiService.getNews failed:", error);
+            return {
+                success: false,
+                message: error instanceof Error ? error.message : "Không thể tải tin tức"
+            };
+        }
+    },
     /**
      * Lưu vị trí hiện tại của người dùng
      */

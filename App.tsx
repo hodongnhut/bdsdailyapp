@@ -30,6 +30,7 @@ const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<AppUser | null>(null);
 
+
   const initialFormState = {
     staffId: '',
     name: '',

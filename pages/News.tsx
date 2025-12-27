@@ -1,29 +1,34 @@
 
-import React, { useState, useMemo } from 'react';
-import { 
-  Search, 
-  Plus, 
-  Edit2, 
-  Trash2, 
-  Calendar, 
-  Tag, 
-  X, 
+import React, { useState, useMemo, useEffect } from 'react';
+import {
+  Search,
+  Plus,
+  Edit2,
+  Trash2,
+  Calendar,
+  Tag,
+  X,
   Image as ImageIcon,
-  Newspaper
+  Newspaper,
+  Loader2,
+  RefreshCcw
 } from 'lucide-react';
 import { NewsItem } from '../types';
+import { ApiService } from '../services/api';
 
 interface NewsProps {
-  news: NewsItem[];
   onAdd: (item: Omit<NewsItem, 'id'>) => void;
   onUpdate: (item: NewsItem) => void;
   onDelete: (id: string) => void;
 }
 
-export const News: React.FC<NewsProps> = ({ news, onAdd, onUpdate, onDelete }) => {
+export const News: React.FC<NewsProps> = ({ onAdd, onUpdate, onDelete }) => {
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<NewsItem | null>(null);
+
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -32,10 +37,33 @@ export const News: React.FC<NewsProps> = ({ news, onAdd, onUpdate, onDelete }) =
     date: new Date().toISOString().split('T')[0]
   });
 
-  const categories = ['Thị trường', 'Quy hoạch', 'Đào tạo', 'Sự kiện', 'Thông báo'];
+  const categories = ['Tin tức', 'Thông báo', 'Sự kiện', 'Tài Liệu', 'Quy hoạch', 'Đào tạo'];
+
+  const fetchNewsData = async () => {
+    setLoading(true);
+    const res = await ApiService.getNews();
+    if (res.success && res.data) {
+      const mappedNews: NewsItem[] = res.data.map((item: any) => ({
+        id: item.post_id.toString(),
+        title: item.post_title,
+        content: item.post_content,
+        category: item.category?.category_name || item.post_type_label,
+        date: item.post_date,
+        imageUrl: item.attachments && item.attachments.length > 0
+          ? item.attachments[0].file_url
+          : ''
+      }));
+      setNews(mappedNews);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchNewsData();
+  }, []);
 
   const filteredNews = useMemo(() => {
-    return news.filter(item => 
+    return news.filter(item =>
       item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.category.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -46,7 +74,7 @@ export const News: React.FC<NewsProps> = ({ news, onAdd, onUpdate, onDelete }) =
     setFormData({
       title: '',
       content: '',
-      category: 'Thị trường',
+      category: 'Tin tức',
       imageUrl: '',
       date: new Date().toISOString().split('T')[0]
     });
@@ -69,11 +97,25 @@ export const News: React.FC<NewsProps> = ({ news, onAdd, onUpdate, onDelete }) =
     e.preventDefault();
     if (editingItem) {
       onUpdate({ ...editingItem, ...formData });
+      // Tạm thời cập nhật UI local
+      setNews(prev => prev.map(n => n.id === editingItem.id ? { ...n, ...formData } : n));
     } else {
       onAdd(formData);
+      // Giả lập ID để hiện local
+      const newItem: NewsItem = { id: Math.random().toString(), ...formData };
+      setNews(prev => [newItem, ...prev]);
     }
     setIsModalOpen(false);
   };
+
+  if (loading) {
+    return (
+      <div className="h-[60vh] flex flex-col items-center justify-center space-y-4">
+        <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Đang tải bản tin...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -82,13 +124,22 @@ export const News: React.FC<NewsProps> = ({ news, onAdd, onUpdate, onDelete }) =
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Bản tin nội bộ</h1>
           <p className="text-slate-500 font-medium">Cập nhật tin tức và thông báo mới nhất cho nhân viên.</p>
         </div>
-        <button 
-          onClick={handleOpenAdd}
-          className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-2xl transition-all shadow-lg shadow-indigo-100"
-        >
-          <Plus className="w-5 h-5" />
-          Tạo bản tin mới
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={fetchNewsData}
+            className="p-4 bg-white border border-slate-200 text-slate-500 rounded-2xl hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm"
+            title="Làm mới"
+          >
+            <RefreshCcw className="w-5 h-5" />
+          </button>
+          <button
+            onClick={handleOpenAdd}
+            className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-2xl transition-all shadow-lg shadow-indigo-100"
+          >
+            <Plus className="w-5 h-5" />
+            Tạo bản tin mới
+          </button>
+        </div>
       </header>
 
       {/* Search Bar */}
@@ -96,8 +147,8 @@ export const News: React.FC<NewsProps> = ({ news, onAdd, onUpdate, onDelete }) =
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
           <Search className="w-5 h-5" />
         </div>
-        <input 
-          type="text" 
+        <input
+          type="text"
           placeholder="Tìm kiếm theo tiêu đề hoặc danh mục..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -131,19 +182,23 @@ export const News: React.FC<NewsProps> = ({ news, onAdd, onUpdate, onDelete }) =
               <h3 className="text-xl font-bold text-slate-900 mb-3 line-clamp-2 group-hover:text-indigo-600 transition-colors">
                 {item.title}
               </h3>
-              <p className="text-slate-500 text-sm line-clamp-3 mb-6 leading-relaxed flex-1">
-                {item.content}
-              </p>
+              <div className="text-slate-500 text-sm line-clamp-3 mb-6 leading-relaxed flex-1 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: item.content }}>
+              </div>
               <div className="flex items-center justify-between pt-4 border-t border-slate-50">
                 <div className="flex items-center gap-2">
-                  <button 
+                  <button
                     onClick={() => handleOpenEdit(item)}
                     className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
-                  <button 
-                    onClick={() => onDelete(item.id)}
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
+                        onDelete(item.id);
+                        setNews(prev => prev.filter(n => n.id !== item.id));
+                      }
+                    }}
                     className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -177,15 +232,15 @@ export const News: React.FC<NewsProps> = ({ news, onAdd, onUpdate, onDelete }) =
                 <X className="w-6 h-6" />
               </button>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-widest ml-1">Tiêu đề bản tin</label>
-                <input 
+                <input
                   type="text" required
                   placeholder="VD: Cập nhật thị trường tháng 6/2024"
                   value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all"
                 />
               </div>
@@ -193,9 +248,9 @@ export const News: React.FC<NewsProps> = ({ news, onAdd, onUpdate, onDelete }) =
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-700 uppercase tracking-widest ml-1">Danh mục</label>
-                  <select 
+                  <select
                     value={formData.category}
-                    onChange={(e) => setFormData({...formData, category: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all appearance-none"
                   >
                     {categories.map(cat => (
@@ -205,10 +260,10 @@ export const News: React.FC<NewsProps> = ({ news, onAdd, onUpdate, onDelete }) =
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-700 uppercase tracking-widest ml-1">Ngày đăng</label>
-                  <input 
+                  <input
                     type="date" required
                     value={formData.date}
-                    onChange={(e) => setFormData({...formData, date: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                     className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all"
                   />
                 </div>
@@ -218,11 +273,11 @@ export const News: React.FC<NewsProps> = ({ news, onAdd, onUpdate, onDelete }) =
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-widest ml-1">URL Hình ảnh</label>
                 <div className="relative">
                   <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <input 
+                  <input
                     type="url"
                     placeholder="https://images.unsplash.com/..."
                     value={formData.imageUrl}
-                    onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
                     className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all"
                   />
                 </div>
@@ -230,18 +285,18 @@ export const News: React.FC<NewsProps> = ({ news, onAdd, onUpdate, onDelete }) =
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-widest ml-1">Nội dung chi tiết</label>
-                <textarea 
+                <textarea
                   required
                   rows={5}
                   placeholder="Nhập nội dung bản tin tại đây..."
                   value={formData.content}
-                  onChange={(e) => setFormData({...formData, content: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                   className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all resize-none"
                 />
               </div>
 
               <div className="pt-4">
-                <button 
+                <button
                   type="submit"
                   className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-bold py-5 rounded-2xl shadow-xl transition-all active:scale-[0.98]"
                 >
