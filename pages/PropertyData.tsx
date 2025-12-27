@@ -93,6 +93,8 @@ export const PropertyData: React.FC<PropertyDataProps> = ({ onAdd, onUpdate, onD
     if (filters.district) searchParams.district = filters.district;
     if (filters.priceMin) searchParams.priceMin = filters.priceMin;
     if (filters.priceMax) searchParams.priceMax = filters.priceMax;
+    if (filters.phoneSearch) searchParams.phone = filters.phoneSearch;
+    if (filters.houseNumber) searchParams.house_number = filters.houseNumber;
 
     const res = await ApiService.getProperties(currentPage, rowsPerPage, searchParams);
     if (res.success && res.data) {
@@ -100,7 +102,7 @@ export const PropertyData: React.FC<PropertyDataProps> = ({ onAdd, onUpdate, onD
       setTotalItems(res.data.pagination?.total || 0);
     }
     setLoading(false);
-  }, [currentPage, rowsPerPage, filters]);
+  }, [currentPage, rowsPerPage, filters.generalSearch, filters.district, filters.priceMin, filters.priceMax, filters.phoneSearch, filters.houseNumber]);
 
   useEffect(() => {
     fetchProperties();
@@ -132,7 +134,6 @@ export const PropertyData: React.FC<PropertyDataProps> = ({ onAdd, onUpdate, onD
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implementation for Save would go here through ApiService
     setIsModalOpen(false);
   };
 
@@ -234,17 +235,6 @@ export const PropertyData: React.FC<PropertyDataProps> = ({ onAdd, onUpdate, onD
                     <input className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-xs outline-none shadow-inner" value={filters.lotNumber} onChange={e => setFilters({ ...filters, lotNumber: e.target.value })} />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between px-1">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Rộng (m)</label>
-                    <span className="text-[10px] font-bold text-indigo-500">Min - Max</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <input placeholder="Min" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-center" value={filters.priceMin} onChange={e => setFilters({ ...filters, priceMin: e.target.value })} />
-                    <div className="w-4 h-px bg-slate-300"></div>
-                    <input placeholder="Max" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-center" value={filters.priceMax} onChange={e => setFilters({ ...filters, priceMax: e.target.value })} />
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -254,17 +244,6 @@ export const PropertyData: React.FC<PropertyDataProps> = ({ onAdd, onUpdate, onD
                 <Maximize2 className="w-4 h-4 text-indigo-500" /> 3. Thông số & Giá trị
               </h3>
               <div className="grid grid-cols-1 gap-6">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between px-1">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Dài (m)</label>
-                    <span className="text-[10px] font-bold text-indigo-500">Min - Max</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <input placeholder="Min" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-center" value={filters.priceMin} onChange={e => setFilters({ ...filters, priceMin: e.target.value })} />
-                    <div className="w-4 h-px bg-slate-300"></div>
-                    <input placeholder="Max" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-center" value={filters.priceMax} onChange={e => setFilters({ ...filters, priceMax: e.target.value })} />
-                  </div>
-                </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between px-1">
                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Khoảng Giá (Tỷ)</label>
@@ -328,7 +307,7 @@ export const PropertyData: React.FC<PropertyDataProps> = ({ onAdd, onUpdate, onD
               </label>
               <div className="flex items-center gap-3 w-full sm:w-auto">
                 <button onClick={handleResetFilters} className="p-4 bg-slate-100 text-slate-500 rounded-2xl hover:bg-slate-200 transition-all border border-slate-200"><RotateCcw className="w-5 h-5" /></button>
-                <button className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-10 py-4 bg-slate-900 text-white rounded-[1.5rem] text-[12px] font-black uppercase hover:bg-indigo-600 shadow-2xl shadow-slate-300 transition-all active:scale-95 group">
+                <button onClick={() => setCurrentPage(1)} className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-10 py-4 bg-slate-900 text-white rounded-[1.5rem] text-[12px] font-black uppercase hover:bg-indigo-600 shadow-2xl shadow-slate-300 transition-all active:scale-95 group">
                   <Search className="w-4 h-4 group-hover:scale-125 transition-transform" /> TÌM KIẾM
                 </button>
               </div>
@@ -338,7 +317,44 @@ export const PropertyData: React.FC<PropertyDataProps> = ({ onAdd, onUpdate, onD
       )}
 
       {/* PROPERTY LISTING */}
-      <div className="space-y-4">
+      <div className="space-y-6">
+        {/* Search Header - Refined UI */}
+        <div className="bg-white rounded-[2rem] border border-slate-200 p-6 md:p-8 shadow-sm flex flex-col md:flex-row gap-6 items-center justify-between mx-2">
+          <div className="relative w-full md:max-w-xl group">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
+            <input
+              type="text"
+              placeholder="Tìm theo Điện Thoại | Số Nhà | Đường Phố | Khu Vực..."
+              value={filters.generalSearch}
+              onChange={e => {
+                setFilters(prev => ({ ...prev, generalSearch: e.target.value }));
+                setCurrentPage(1);
+              }}
+              className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:bg-white focus:border-indigo-500 outline-none transition-all font-bold text-sm"
+            />
+          </div>
+          <div className="flex items-center gap-8 w-full md:w-auto justify-between md:justify-end">
+            <div className="flex items-center gap-4">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Dòng hiển thị:</span>
+              <select
+                value={rowsPerPage}
+                onChange={e => {
+                  setRowsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl font-black text-xs text-slate-900 outline-none hover:bg-white transition-all cursor-pointer shadow-sm"
+              >
+                <option value={20}>20 dòng</option>
+                <option value={50}>50 dòng</option>
+                <option value={100}>100 dòng</option>
+              </select>
+            </div>
+            <div className="hidden xl:flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-xl border border-indigo-100">
+              <span className="text-[10px] font-black text-indigo-600 uppercase">TỔNG: {totalItems}</span>
+            </div>
+          </div>
+        </div>
+
         {loading ? (
           <div className="py-40 flex flex-col items-center justify-center space-y-4">
             <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
@@ -347,7 +363,7 @@ export const PropertyData: React.FC<PropertyDataProps> = ({ onAdd, onUpdate, onD
         ) : (
           <>
             {/* DESKTOP TABLE VIEW */}
-            <div className="hidden md:block bg-white rounded-[3.5rem] border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-500">
+            <div className="hidden md:block bg-white rounded-[3.5rem] border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-500 mx-2">
               <div className="overflow-x-auto custom-scrollbar">
                 <table className="w-full text-left min-w-[1200px]">
                   <thead>
@@ -387,7 +403,7 @@ export const PropertyData: React.FC<PropertyDataProps> = ({ onAdd, onUpdate, onD
                         </td>
                         <td className="px-6 py-7">
                           <div className="text-base font-black text-indigo-600">{formatPrice(p.price)}</div>
-                          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{(parseFloat(p.price) / parseFloat(p.area_total) / 1000000).toFixed(1)} tr/m²</div>
+                          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{(parseFloat(p.price) / (parseFloat(p.area_total) || 1) / 1000000).toFixed(1)} tr/m²</div>
                         </td>
                         <td className="px-6 py-7">
                           <div className="text-sm font-black text-slate-800">{p.area_total} m²</div>
@@ -488,7 +504,7 @@ export const PropertyData: React.FC<PropertyDataProps> = ({ onAdd, onUpdate, onD
                     <select
                       value={rowsPerPage}
                       onChange={(e) => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }}
-                      className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-black text-slate-900 outline-none"
+                      className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-black text-slate-900 outline-none hover:bg-white transition-all"
                     >
                       <option value={20}>20 dòng</option>
                       <option value={50}>50 dòng</option>
