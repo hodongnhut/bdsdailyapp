@@ -140,7 +140,11 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    if (token) setIsLoggedIn(true);
+    const savedUser = localStorage.getItem('user_info');
+    if (token && savedUser) {
+      setIsLoggedIn(true);
+      setCurrentUser(JSON.parse(savedUser));
+    }
   }, []);
 
   const handleLogin = (loginData: any) => {
