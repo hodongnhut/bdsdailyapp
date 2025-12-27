@@ -72,9 +72,8 @@ export default function MapComponent({ onMapReady }: MapComponentProps) {
                 infoAreaFeatures: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
                 pointLocation: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
             },
-            // Trong MapComponent.tsx → thay thế phần layers bằng cái này
+
             layers: [
-                // === LAYER1 – Quy hoạch chính + thửa đất + subparcels (từ main.json & extra.json) ===
                 {
                     id: 'lo_gioi_senior',
                     type: 'line',
