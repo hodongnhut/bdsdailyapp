@@ -32,6 +32,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ users, currentUser, onAddU
   ];
   const maxViews = Math.max(...chartData.map(d => d.views));
 
+  // Get current date in Vietnamese format
+  const today = new Date();
+  const formattedDate = `${today.getDate()} Tháng ${today.getMonth() + 1}, ${today.getFullYear()}`;
+
   // Kiểm tra quyền quản trị
   const canManageUsers = currentUser?.role_code === 'super_admin' || currentUser?.role_code === 'manager';
 
@@ -46,7 +50,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ users, currentUser, onAddU
         <div className="hidden md:flex items-center gap-3">
           <div className="flex flex-col items-end">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hôm nay</span>
-            <span className="text-sm font-bold text-slate-900">22 Tháng 5, 2024</span>
+            <span className="text-sm font-bold text-slate-900">{formattedDate}</span>
           </div>
           <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
             <User className="w-5 h-5" />
