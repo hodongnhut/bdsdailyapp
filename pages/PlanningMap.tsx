@@ -58,7 +58,7 @@ export const PlanningMap: React.FC = () => {
         </div>
 
         {/* Top Floating Search UI (Optional - can keep or replace with DistrictSearch) */}
-        <div className="absolute top-4 right-4 z-40 pointer-events-none">
+        {/* <div className="absolute top-4 right-4 z-40 pointer-events-none">
           <div className="flex gap-3 pointer-events-auto">
             <button className="hidden sm:flex px-10 py-6 bg-slate-900 text-white rounded-3xl shadow-2xl hover:bg-indigo-600 font-black text-xs uppercase tracking-widest transition-all items-center gap-2">
               <Filter className="w-5 h-5" /> Lọc BĐS
@@ -70,7 +70,7 @@ export const PlanningMap: React.FC = () => {
               <Layers className="w-6 h-6" />
             </button>
           </div>
-        </div>
+        </div> */}
 
         {/* Mobile Layer Switcher (if you want to keep layer toggle UI) */}
         {isMobileLayerOpen && (
