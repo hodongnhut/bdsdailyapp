@@ -21,6 +21,35 @@ export interface ApiResponse<T = any> {
  */
 export const ApiService = {
     /**
+   * Lấy danh sách người dùng từ hệ thống
+   */
+    async getUsers(): Promise<ApiResponse<any[]>> {
+        try {
+            const response = await fetch('/api/user', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const resData = await response.json();
+            return {
+                success: resData.status, // API trả về "status" là boolean thành công
+                message: resData.msg,
+                data: resData.data
+            };
+        } catch (error) {
+            console.error("ApiService.getUsers failed:", error);
+            return {
+                success: false,
+                message: error instanceof Error ? error.message : "Không thể tải danh sách người dùng"
+            };
+        }
+    },
+    /**
      * Lưu vị trí hiện tại của người dùng
      */
     async saveLocation(payload: LocationPayload): Promise<ApiResponse> {
