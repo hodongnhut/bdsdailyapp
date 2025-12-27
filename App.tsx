@@ -44,11 +44,15 @@ const App: React.FC = () => {
 
   const [userFormData, setUserFormData] = useState(initialFormState);
 
-  // --- FETCH USERS LOGIC ---
   const fetchUsers = useCallback(() => {
     ApiService.getUsers().then(res => {
+      if (res.status === 401) {
+        console.warn("Session expired or unauthorized. Logging out...");
+        handleLogout();
+        return;
+      }
+
       if (res.success && res.data) {
-        // Map data từ API sang structure của AppUser
         const mappedUsers: AppUser[] = res.data.map((u: any) => ({
           id: u.id.toString(),
           staffId: u.username,
