@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { User, Edit2, Trash2, Plus, TrendingUp, Building2, Briefcase, Hash, MapPin, X, Navigation, Battery, SignalHigh } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { User, Edit2, Trash2, CheckCircle2, DollarSign, Plus, TrendingUp, Building2, Briefcase, Hash, MapPin, X, Navigation, Battery, SignalHigh } from 'lucide-react';
 import { AppUser } from '../types';
 
 interface DashboardProps {
@@ -14,6 +14,13 @@ interface DashboardProps {
 export const Dashboard: React.FC<DashboardProps> = ({ users, currentUser, onAddUser, onEditUser, onDeleteUser }) => {
   const [viewingUserLocation, setViewingUserLocation] = useState<AppUser | null>(null);
 
+  const stats = useMemo(() => ({
+    total: 200000,
+    approved: 200,
+    new: 10,
+    totalValue: 10000000000000000000
+  }));
+
   const chartData = [
     { day: 'T2', views: 450 },
     { day: 'T3', views: 620 },
@@ -26,12 +33,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ users, currentUser, onAddU
   const maxViews = Math.max(...chartData.map(d => d.views));
 
   // Kiểm tra quyền quản trị
-
   const canManageUsers = currentUser?.role_code === 'super_admin' || currentUser?.role_code === 'manager';
-  console.log(currentUser?.role_code);
 
   return (
     <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Quản trị Hệ thống</h1>
@@ -47,6 +53,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ users, currentUser, onAddU
           </div>
         </div>
       </header>
+
+      {/* Quick Stats Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: 'Tổng tài sản', value: stats.total, icon: <Building2 />, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+          { label: 'Đã duyệt tin', value: stats.approved, icon: <CheckCircle2 />, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: 'Sản phẩm mới', value: stats.new, icon: <TrendingUp />, color: 'text-amber-600', bg: 'bg-amber-50' },
+          { label: 'Tổng giá trị (Tỷ)', value: (stats.totalValue / 1000000000).toFixed(1), icon: <DollarSign />, color: 'text-rose-600', bg: 'bg-rose-50' },
+        ].map((stat, i) => (
+          <div key={i} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex items-center gap-5 hover:shadow-md transition-all group">
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${stat.bg} ${stat.color}`}>
+              {/* Fix: casting to React.ReactElement<any> to avoid type mismatch when cloning icon with className */}
+              {React.cloneElement(stat.icon as React.ReactElement<any>, { className: "w-7 h-7" })}
+            </div>
+            <div>
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</div>
+              <div className="text-2xl font-black text-slate-900">{stat.value}</div>
+            </div>
+          </div>
+        ))}
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <section className="lg:col-span-2 bg-white rounded-[2rem] shadow-sm border border-slate-200 p-6 md:p-8">
