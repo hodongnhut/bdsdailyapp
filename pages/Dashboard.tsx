@@ -5,12 +5,13 @@ import { AppUser } from '../types';
 
 interface DashboardProps {
   users: AppUser[];
+  currentUser: any;
   onAddUser: () => void;
   onEditUser: (user: AppUser) => void;
   onDeleteUser: (id: string) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ users, onAddUser, onEditUser, onDeleteUser }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ users, currentUser, onAddUser, onEditUser, onDeleteUser }) => {
   const [viewingUserLocation, setViewingUserLocation] = useState<AppUser | null>(null);
 
   const chartData = [
@@ -24,12 +25,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ users, onAddUser, onEditUs
   ];
   const maxViews = Math.max(...chartData.map(d => d.views));
 
+  // Kiểm tra quyền quản trị
+
+  const canManageUsers = currentUser?.role_code === 'super_admin' || currentUser?.role_code === 'manager';
+  console.log(currentUser?.role_code);
+
   return (
     <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Quản trị Hệ thống</h1>
-          <p className="text-sm md:text-base text-slate-500 font-medium">Chào mừng trở lại, Administrator.</p>
+          <p className="text-sm md:text-base text-slate-500 font-medium">Chào mừng trở lại, {currentUser?.full_name || 'Administrator'}.</p>
         </div>
         <div className="hidden md:flex items-center gap-3">
           <div className="flex flex-col items-end">
@@ -92,82 +98,84 @@ export const Dashboard: React.FC<DashboardProps> = ({ users, onAddUser, onEditUs
         </section>
       </div>
 
-      <section className="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
-        <div className="p-6 md:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-bold text-slate-900">Quản lý nhân sự</h2>
-            <p className="text-sm text-slate-500">Danh sách nhân viên định danh toàn hệ thống</p>
+      {canManageUsers && (
+        <section className="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
+          <div className="p-6 md:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Quản lý nhân sự</h2>
+              <p className="text-sm text-slate-500">Danh sách nhân viên định danh toàn hệ thống</p>
+            </div>
+            <button onClick={onAddUser} className="inline-flex items-center justify-center gap-2 bg-indigo-600 text-white text-[11px] font-black py-4 px-8 rounded-2xl shadow-lg shadow-indigo-100 active:scale-95 transition-all uppercase tracking-widest">
+              <Plus className="w-4 h-4" /> THÊM MỚI
+            </button>
           </div>
-          <button onClick={onAddUser} className="inline-flex items-center justify-center gap-2 bg-indigo-600 text-white text-[11px] font-black py-4 px-8 rounded-2xl shadow-lg shadow-indigo-100 active:scale-95 transition-all uppercase tracking-widest">
-            <Plus className="w-4 h-4" /> THÊM MỚI
-          </button>
-        </div>
 
-        <div className="overflow-x-auto w-full custom-scrollbar">
-          <table className="w-full text-left min-w-[1000px]">
-            <thead>
-              <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
-                <th className="px-8 py-5">Định danh NV</th>
-                <th className="px-6 py-5">Họ tên & Liên hệ</th>
-                <th className="px-6 py-5">Phòng ban</th>
-                <th className="px-6 py-5">Chức vụ</th>
-                <th className="px-6 py-5">Trạng thái</th>
-                <th className="px-8 py-5 text-right">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {users.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-2">
-                      <Hash className="w-3.5 h-3.5 text-slate-300" />
-                      <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">{user.staffId}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 font-black text-sm">{user.name.charAt(0)}</div>
-                      <div>
-                        <div className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{user.name}</div>
-                        <div className="text-[10px] text-slate-400 font-medium">{user.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
-                      <Building2 className="w-3.5 h-3.5 text-slate-400" /> {user.department}
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-2 text-xs font-bold text-indigo-500">
-                      <Briefcase className="w-3.5 h-3.5 text-indigo-300" /> {user.role}
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-50 border border-slate-100">
-                      <div className={`w-2 h-2 rounded-full ${user.status === 'online' ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`}></div>
-                      <span className="text-[10px] font-black text-slate-500 uppercase">{user.status}</span>
-                    </div>
-                  </td>
-                  <td className="px-8 py-5 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        onClick={() => setViewingUserLocation(user)}
-                        title="Xem vị trí"
-                        className="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
-                      >
-                        <MapPin className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => onEditUser(user)} className="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"><Edit2 className="w-4 h-4" /></button>
-                      <button onClick={() => onDeleteUser(user.id)} className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"><Trash2 className="w-4 h-4" /></button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto w-full custom-scrollbar">
+            <table className="w-full text-left min-w-[1000px]">
+              <thead>
+                <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                  <th className="px-8 py-5">Định danh NV</th>
+                  <th className="px-6 py-5">Họ tên & Liên hệ</th>
+                  <th className="px-6 py-5">Phòng ban</th>
+                  <th className="px-6 py-5">Chức vụ</th>
+                  <th className="px-6 py-5">Trạng thái</th>
+                  <th className="px-8 py-5 text-right">Thao tác</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {users.map((user) => (
+                  <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-8 py-5">
+                      <div className="flex items-center gap-2">
+                        <Hash className="w-3.5 h-3.5 text-slate-300" />
+                        <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">{user.staffId}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 font-black text-sm">{user.name.charAt(0)}</div>
+                        <div>
+                          <div className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{user.name}</div>
+                          <div className="text-[10px] text-slate-400 font-medium">{user.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                        <Building2 className="w-3.5 h-3.5 text-slate-400" /> {user.department}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2 text-xs font-bold text-indigo-500">
+                        <Briefcase className="w-3.5 h-3.5 text-indigo-300" /> {user.role}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-50 border border-slate-100">
+                        <div className={`w-2 h-2 rounded-full ${user.status === 'online' ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`}></div>
+                        <span className="text-[10px] font-black text-slate-500 uppercase">{user.status}</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => setViewingUserLocation(user)}
+                          title="Xem vị trí"
+                          className="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                        >
+                          <MapPin className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => onEditUser(user)} className="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"><Edit2 className="w-4 h-4" /></button>
+                        <button onClick={() => onDeleteUser(user.id)} className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       {/* User Location Modal */}
       {viewingUserLocation && (
@@ -190,7 +198,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ users, onAddUser, onEditUs
             <div className="flex flex-col lg:flex-row">
               {/* Map Area */}
               <div className="flex-1 h-[450px] bg-slate-100 relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/106.66,10.76,13,0/800x600?access_token=AIzaSyBal4PU2T0poc6U14VZ7B6R9TvNpLd0eY4')] bg-cover bg-center"></div>
+                <div className="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/106.66,10.76,13,0/800x600?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTAwMHozN282YWhpYjU2ZncifQ==')] bg-cover bg-center"></div>
 
                 {/* Target Pulse Marker */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">

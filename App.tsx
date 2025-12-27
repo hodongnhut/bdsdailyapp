@@ -230,7 +230,7 @@ const App: React.FC = () => {
 
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto p-4 md:p-8 lg:p-12 max-w-[1600px]">
-          {currentView === 'dashboard' && <Dashboard users={users} onAddUser={() => { setEditingUser(null); setUserFormData(initialFormState); setIsModalOpen(true); }} onEditUser={(user) => { setEditingUser(user); setUserFormData({ ...user, password: '' }); setIsModalOpen(true); }} onDeleteUser={(id) => setUsers(users.filter(u => u.id !== id))} />}
+          {currentView === 'dashboard' && <Dashboard users={users} currentUser={currentUser} onAddUser={() => { setEditingUser(null); setUserFormData(initialFormState); setIsModalOpen(true); }} onEditUser={(user) => { setEditingUser(user); setUserFormData({ ...user, password: '' }); setIsModalOpen(true); }} onDeleteUser={(id) => setUsers(users.filter(u => u.id !== id))} />}
           {currentView === 'property_data' && <PropertyData properties={properties} onAdd={() => { }} onUpdate={() => { }} onDelete={() => { }} />}
           {currentView === 'news' && <News news={news} onAdd={() => { }} onUpdate={() => { }} onDelete={() => { }} />}
           {currentView === 'favorites' && <Favorites properties={properties} onRemoveFavorite={() => { }} />}
