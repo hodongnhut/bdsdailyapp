@@ -1,5 +1,10 @@
-// src/components/DistrictSearch.tsx
 import { useState, useEffect, useRef } from 'react';
+import {
+    Search,
+    LocateFixed,
+    ChevronDown,
+    MapPin
+} from 'lucide-react';
 import { districts } from '../data/districts';
 import maplibregl from 'maplibre-gl';
 
@@ -68,7 +73,7 @@ export default function DistrictSearch({ map }: DistrictSearchProps) {
 
     return (
         <div className="GroupSearch" ref={searchBoxRef}>
-            <i className="fas fa-caret-down" onClick={() => setIsOpen(!isOpen)} style={{ cursor: 'pointer' }}></i>
+            <ChevronDown className="w-5 h-5" onClick={() => setIsOpen(!isOpen)} style={{ cursor: 'pointer' }} />
 
             <div className="FilterText">
                 <span className="FilterText-Default" style={{ display: selectedDistrict ? 'none' : 'inline' }}>
@@ -121,11 +126,16 @@ export default function DistrictSearch({ map }: DistrictSearchProps) {
                     onClick={() => setShowCoordInput(!showCoordInput)}
                     title="Tìm theo tọa độ"
                 >
-                    <i className="fa fa-search"></i>
+                    <Search className="w-5 h-5" />
+                </div>
+
+                <div className="ButtonZone ButtonTooltip Marker" title="Đến vị trí đánh dấu">
+                    <i class="fa fa-map-marker-alt"></i>
+                    <MapPin className="w-5 h-5" />
                 </div>
 
                 <div className="ButtonZone ButtonTooltip Location" title="Vị trí hiện tại của bạn">
-                    <i className="fa fa-location-arrow"></i>
+                    <LocateFixed className="w-5 h-5" />
                 </div>
             </div>
 
@@ -140,7 +150,7 @@ export default function DistrictSearch({ map }: DistrictSearchProps) {
                     className="FrmInput jEle"
                 />
                 <div className="fIconLeft">
-                    <i className="fa fa-search"></i>
+                    <Search className="w-5 h-5" />
                 </div>
             </div>
         </div>

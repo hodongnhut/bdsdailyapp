@@ -1,5 +1,7 @@
-
 import { useEffect, useRef, useState } from 'react';
+import {
+    X,
+} from 'lucide-react';
 import maplibregl from 'maplibre-gl';
 import * as turf from '@turf/turf';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -853,7 +855,7 @@ export default function MapComponent({ onMapReady }: MapComponentProps) {
                                     <span className="tooltip">Ghim vị trí đánh dấu</span>
                                 </div>
                                 <div className="close" onClick={() => setSidebarOpen(false)}>
-                                    <i className="fa fa-times"></i>
+                                    <X className="w-5 h-5" />
                                 </div>
                             </div>
                         </div>
