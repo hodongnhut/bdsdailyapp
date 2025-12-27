@@ -5,139 +5,12 @@
     overflow: hidden;
 }
 
-.logo-overlay {
-    position: absolute;
-    top: 2%;
-    left: 40%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-    width: 129px;
-    height: 50px;
-    background-color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.logo-overlay img {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
-}
 
 /* Hide MapLibre attribution on bottom right */
 .maplibregl-ctrl-bottom-right {
     display: none !important;
 }
 
-/* Sidebar */
-#sidebar {
-    position: absolute;
-    top: 0;
-    right: -400px;
-    width: 380px;
-    height: 100%;
-    background: white;
-    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
-    transition: right 0.3s ease-in-out;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    font-family: Arial, sans-serif;
-}
-
-#sidebar.active {
-    right: 0;
-}
-
-#sidebar .header {
-    background: #007cba;
-    color: white;
-    padding: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 18px;
-}
-
-#sidebar .header h2 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-}
-
-#sidebar .GroupButton {
-    display: flex;
-    gap: 10px;
-}
-
-#sidebar .Thumbtack,
-#sidebar .close {
-    cursor: pointer;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: background 0.2s;
-}
-
-#sidebar .Thumbtack:hover,
-#sidebar .close:hover {
-    background: rgba(255, 255, 255, 0.4);
-}
-
-#sidebar .close i {
-    font-size: 18px;
-}
-
-#sidebar .content {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    background: #f9f9f9;
-}
-
-#sidebar .infoContainer p {
-    margin: 12px 0;
-    font-size: 15px;
-}
-
-#sidebar .infoContainer strong {
-    color: #333;
-}
-
-#sidebar h3 {
-    margin: 25px 0 15px;
-    color: #007cba;
-    font-size: 17px;
-}
-
-#sidebar #landuse {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-#sidebar #landuse li {
-    display: flex;
-    align-items: center;
-    padding: 8px 0;
-    font-size: 14px;
-}
-
-#sidebar #landuse .icon {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border-radius: 3px;
-    margin-right: 10px;
-    flex-shrink: 0;
-}
 
 /* Search & Filter Group */
 .GroupSearch {
@@ -382,6 +255,538 @@
 
     .GroupButtonZoom {
         bottom: 20px;
+        right: 10px;
+    }
+}
+
+.Page-ZoningMapVer2 ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.Page-ZoningMapVer2 ::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 5px;
+}
+
+.Page-ZoningMapVer2 ::-webkit-scrollbar-thumb:hover {
+    background-color: #aaa;
+}
+
+.Page-ZoningMapVer2 ::-webkit-scrollbar-track {
+    background-color: #fff;
+}
+
+.Page-ZoningMapVer2 {
+    max-width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: -webkit-fill-available;
+    width: 100%;
+}
+
+.Page-ZoningMapVer2 .AdminGroupJson {
+    display: none;
+}
+
+.Page-ZoningMapVer2 .HeadControl {
+    display: none;
+}
+
+.Page-ZoningMapVer2 .AreaContent {
+    height: 100%;
+}
+
+.Page-ZoningMapVer2 .FrmItems .FrmInput {
+    min-height: 30px;
+    width: 90%;
+}
+
+.Page-ZoningMapVer2 .FrmItems.Type-Select select.FrmInput {
+    height: 30px;
+}
+
+.Page-ZoningMapVer2 .Searh-ZoningMap {
+    margin-bottom: 5px;
+}
+
+.Page-ZoningMapVer2 .FrmItems .FrmLabel .fLabelSpan {
+    font-size: 0.8rem;
+}
+
+.Page-ZoningMapVer2 .FrmItems .fIconLeft {
+    font-size: 1rem;
+    width: 30px;
+    float: right;
+}
+
+
+.Page-ZoningMapVer2-Container #map {
+    width: 100%;
+    height: 100%;
+}
+
+.Page-ZoningMapVer2-Container #sidebar {
+    position: absolute;
+    top: unset;
+    bottom: 0;
+    width: 300px;
+    padding: 20px;
+    background: white;
+    transition: transform 0.3s ease;
+    transform: translateX(-150%);
+    clip-path: inset(0 0 0 0);
+    z-index: 11;
+    font-size: 1rem;
+    scroll-behavior: smooth;
+    border-radius: 20px;
+    left: 73px;
+    bottom: 20px;
+    height: max-content;
+    border: 1px solid var(--ColorHightline);
+}
+
+.Page-ZoningMapVer2-Container #sidebar .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* padding-bottom: 10px; */
+}
+
+.Page-ZoningMapVer2-Container #sidebar .header>h2 {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    color: var(--ColorHightline);
+}
+
+.Page-ZoningMapVer2-Container #sidebar .content>h3 {
+    margin-top: 16px;
+    margin-bottom: 10px;
+}
+
+
+.Page-ZoningMapVer2-Container #sidebar .GroupButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.Page-ZoningMapVer2-Container #sidebar .close {
+    cursor: pointer;
+    font-size: 1.6rem;
+    transition: color 0.3s ease;
+    color: #bbbbbb;
+    display: flex;
+    align-items: center;
+    padding: 7px;
+}
+
+.Page-ZoningMapVer2-Container #sidebar .close:hover {
+    color: #333;
+}
+
+.Page-ZoningMapVer2-Container #sidebar .Thumbtack {
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+    color: #4CAF50;
+    display: flex;
+    align-items: center;
+    padding: 7px;
+}
+
+.Page-ZoningMapVer2-Container #sidebar .Thumbtack:hover {
+    color: #327434;
+}
+
+.Page-ZoningMapVer2-Container #sidebar .infoContainer {
+    display: flex;
+    /* flex-direction: column; */
+    margin-top: 10px;
+    margin-bottom: 10px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.Page-ZoningMapVer2-Container #sidebar.active {
+    transform: translateX(0);
+}
+
+.Page-ZoningMapVer2-Container #sidebar h2 {
+    margin-top: 0;
+}
+
+.Page-ZoningMapVer2-Container #sidebar .button-marker {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1rem;
+    /* margin: 10px 0; */
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    margin: auto;
+    display: block;
+}
+
+.Page-ZoningMapVer2-Container #sidebar .button-marker:hover {
+    background-color: #45a049;
+}
+
+.Page-ZoningMapVer2-Container #landuse {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    gap: 2px;
+}
+
+.Page-ZoningMapVer2-Container #landuse li {
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+}
+
+.Page-ZoningMapVer2-Container #landuse li span.icon {
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+    margin-right: 10px;
+    border-radius: 50%;
+    background-color: yellow;
+    border: 1px solid #fff;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+}
+
+.Page-ZoningMapVer2-Container .GroupSearch {
+    position: absolute;
+    top: 75px;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    width: fit-content;
+    margin: auto;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    min-width: 360px;
+    cursor: pointer;
+}
+
+.Page-ZoningMapVer2-Container .SearchBox {
+    position: absolute;
+    bottom: -110%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background-color: white;
+    padding: 4px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out, transform 0.3s ease-in-out;
+    transform: translateY(-105%);
+}
+
+.Page-ZoningMapVer2-Container .GroupSearch .SearchBox.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+
+.Page-ZoningMapVer2-Container .GroupSearch .GroupButton {
+    position: absolute;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 5px 10px 5px 0;
+}
+
+.Page-ZoningMapVer2-Container .GroupSearch>i {
+    font-size: 1.5rem;
+    padding: 10px;
+}
+
+.Page-ZoningMapVer2-Container .GroupSearch .FilterText {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.Page-ZoningMapVer2-Container .GroupSearch .FilterText .FilterText-Title {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.Page-ZoningMapVer2-Container .GroupSearch .FilterText .FilterText-Sub {
+    font-size: 0.9rem;
+}
+
+.Page-ZoningMapVer2-Container .FilterItems {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 40%;
+    background-color: #fff;
+    z-index: 100;
+}
+
+.GroupSearch:hover:not(:has(.GroupButton:hover), :has(.SearchBox:hover)) {
+    border-radius: 5px 5px 0 0;
+}
+
+.GroupSearch:hover:not(:has(.GroupButton:hover), :has(.SearchBox:hover)) .FilterItems {
+    display: block;
+}
+
+.GroupSearch.no-hover:hover:not(:has(.GroupButton:hover), :has(.SearchBox:hover)) .FilterItems {
+    display: none;
+}
+
+.Page-ZoningMapVer2-Container .FilterItems>ul {
+    list-style-type: none;
+    padding-left: 0;
+    max-height: 280px;
+    width: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* Internet Explorer 10+ */
+}
+
+.Page-ZoningMapVer2-Container .FilterItems>ul>li {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.Page-ZoningMapVer2-Container .FilterItems>ul>li>a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.Page-ZoningMapVer2-Container .FilterItems .filter-item>ul {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    width: 150%;
+    height: 100%;
+    margin-left: 0;
+    display: none;
+    background-color: #f0f0f0;
+    list-style-type: none;
+    overflow-y: auto;
+    z-index: 1;
+}
+
+.Page-ZoningMapVer2-Container .FilterItems .filter-item:hover>ul {
+    display: block;
+}
+
+.Page-ZoningMapVer2-Container .FilterItems .filter-item>ul>li {
+    border-bottom: 1px solid #ccc;
+    /* padding: 10px; */
+}
+
+.Page-ZoningMapVer2-Container .FilterItems .filter-item>ul>li>a {
+    padding: 10px;
+    padding-left: 20px;
+    cursor: pointer;
+    display: flex;
+}
+
+.Page-ZoningMapVer2-Container .FilterItems .filter-item>ul>li:hover {
+    background-color: #e0e0e0;
+}
+
+.Page-ZoningMapVer2-Container .FilterItems .filter-item>ul>li:last-child {
+    border-bottom: none;
+}
+
+
+.Page-ZoningMapVer2-Container .FilterItems .filter-item:hover {
+    background-color: #f0f0f0;
+}
+
+.Page-ZoningMapVer2-Container .ButtonZone {
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.Page-ZoningMapVer2-Container .ButtonZone i {
+    font-size: 1.3rem;
+    color: #333;
+}
+
+.Page-ZoningMapVer2-Container .ButtonZone:hover {
+    background-color: #f9f9f9;
+}
+
+.Page-ZoningMapVer2-Container .Location i {
+    color: #008000;
+}
+
+.Page-ZoningMapVer2-Container .Marker i {
+    color: #ff0000;
+}
+
+.Page-ZoningMapVer2-Container .Zoom {
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.Page-ZoningMapVer2-Container .Zoom i {
+    color: #5c5c5c;
+}
+
+.Page-ZoningMapVer2-Container .ButtonTooltip {
+    position: relative;
+}
+
+.Page-ZoningMapVer2-Container .ButtonTooltip .tooltip {
+    position: absolute;
+    top: 100%;
+    right: 50%;
+    width: max-content;
+    max-width: 200px;
+    font-size: 1rem;
+    text-transform: inherit;
+    color: #333;
+    text-align: center;
+    background-color: #ffffcc;
+    padding: 8px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 100;
+}
+
+.Page-ZoningMapVer2-Container .ButtonTooltip:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.Page-ZoningMapVer2-Container .GroupButtonZoom {
+    position: absolute;
+    bottom: 10px;
+    right: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+    width: fit-content;
+    margin: auto;
+}
+
+.maplibregl-popup:hover {
+    display: none;
+}
+
+.Page-ZoningMapVer2-Container .custom-popup .maplibregl-popup-content {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 8px 12px;
+    font-family: Arial, sans-serif;
+    font-size: 1rem;
+    color: #333;
+    align-items: center;
+}
+
+
+.Page-ZoningMapVer2-Container .custom-popup .popup-content {
+    display: flex;
+    align-items: center;
+}
+
+.Page-ZoningMapVer2-Container .custom-popup .popup-icon {
+    margin-right: 8px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+    border: 1px solid #fff;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+}
+
+.Page-ZoningMapVer2-Container .custom-popup .popup-details {
+    font-size: .8rem;
+    color: #555;
+    margin-top: 5px;
+}
+
+.Page-ZoningMapVer2-Container .custom-popup .popup-details p {
+    margin: 2px 0;
+}
+
+
+@media screen and (max-width: 768px) {
+    .Page-ZoningMapVer2-Container #sidebar {
+        width: 100%;
+        bottom: 0;
+        left: 0;
+        transform: translateY(100%);
+        padding: 10px 20px;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .Page-ZoningMapVer2-Container #sidebar .content {
+        padding-left: 20px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .Page-ZoningMapVer2-Container #sidebar .header {
+        border-bottom: #cbcbcb solid 1px;
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+    }
+
+    .Page-ZoningMapVer2-Container #sidebar h2 {
+        flex: 1;
+        text-align: center;
+    }
+
+    .Page-ZoningMapVer2-Container #sidebar .content>h3 {
+        display: none;
+    }
+
+    .Page-ZoningMapVer2-Container #sidebar .GroupButton {
+        position: absolute;
         right: 10px;
     }
 }

@@ -843,35 +843,37 @@ export default function MapComponent({ onMapReady }: MapComponentProps) {
             <div ref={mapContainer} className="map-container" />
 
             {sidebarOpen && parcelInfo && (
-                <div id="sidebar" className="active">
-                    <div className="header">
-                        <h2>Thông tin thửa đất</h2>
-                        <div className="GroupButton">
-                            <div id="markerButton" className="Thumbtack ButtonTooltip">
-                                <i className="fas fa-thumbtack"></i>
-                                <span className="tooltip">Ghim vị trí đánh dấu</span>
-                            </div>
-                            <div className="close" onClick={() => setSidebarOpen(false)}>
-                                <i className="fa fa-times"></i>
+                <div className="Page-ZoningMapVer2-Container">
+                    <div id="sidebar" className="active">
+                        <div className="header">
+                            <h2>Thông tin thửa đất</h2>
+                            <div className="GroupButton">
+                                <div id="markerButton" className="Thumbtack ButtonTooltip">
+                                    <i className="fas fa-thumbtack"></i>
+                                    <span className="tooltip">Ghim vị trí đánh dấu</span>
+                                </div>
+                                <div className="close" onClick={() => setSidebarOpen(false)}>
+                                    <i className="fa fa-times"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="content">
-                        <div className="infoContainer">
-                            <p><strong>Số tờ:</strong> <span>{parcelInfo.soto}</span></p>
-                            <p><strong>Số thửa:</strong> <span>{parcelInfo.sothua}</span></p>
-                            <p><strong>Địa chỉ:</strong> <span>{parcelInfo.diachi}</span></p>
-                            <p><strong>Toạ độ:</strong> <span>{parcelInfo.lat.toFixed(6)}</span>, <span>{parcelInfo.lng.toFixed(6)}</span></p>
+                        <div className="content">
+                            <div className="infoContainer">
+                                <p><strong>Số tờ:</strong> <span>{parcelInfo.soto}</span></p>
+                                <p><strong>Số thửa:</strong> <span>{parcelInfo.sothua}</span></p>
+                                <p><strong>Địa chỉ:</strong> <span>{parcelInfo.diachi}</span></p>
+                                <p><strong>Toạ độ:</strong> <span>{parcelInfo.lat.toFixed(6)}</span>, <span>{parcelInfo.lng.toFixed(6)}</span></p>
+                            </div>
+                            <h3>Quy hoạch sử dụng đất</h3>
+                            <ul id="landuse">
+                                {landUseList.map((item, i) => (
+                                    <li key={i}>
+                                        <span className="icon" style={{ backgroundColor: `rgb(${item.rgbcolor})` }}></span>
+                                        {item.chucnang} ({item.dientich} m²)
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
-                        <h3>Quy hoạch sử dụng đất</h3>
-                        <ul id="landuse">
-                            {landUseList.map((item, i) => (
-                                <li key={i}>
-                                    <span className="icon" style={{ backgroundColor: `rgb(${item.rgbcolor})` }}></span>
-                                    {item.chucnang} ({item.dientich} m²)
-                                </li>
-                            ))}
-                        </ul>
                     </div>
                 </div>
             )}
