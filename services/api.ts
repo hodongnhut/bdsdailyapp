@@ -143,7 +143,7 @@ export const ApiService = {
     async updateNews(id: string, data: any): Promise<ApiResponse<any>> {
         try {
             const response = await fetch(`/api/news/update?id=${id}`, {
-                method: 'PUT',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`
