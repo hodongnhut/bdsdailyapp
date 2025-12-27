@@ -11,7 +11,13 @@ import {
   Image as ImageIcon,
   Newspaper,
   Loader2,
-  RefreshCcw
+  RefreshCcw,
+  ArrowLeft,
+  Share2,
+  Printer,
+  ChevronRight,
+  // Added AlertCircle to fix missing import error on line 327
+  AlertCircle
 } from 'lucide-react';
 import { NewsItem } from '../types';
 import { ApiService } from '../services/api';
@@ -25,19 +31,30 @@ interface NewsProps {
 export const News: React.FC<NewsProps> = ({ onAdd, onUpdate, onDelete }) => {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<NewsItem | null>(null);
+  const [selectedNews, setSelectedNews] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    category: 'Thị trường',
+    category: 'Tin tức',
     imageUrl: '',
     date: new Date().toISOString().split('T')[0]
   });
 
-  const categories = ['Tin tức', 'Thông báo', 'Sự kiện', 'Tài Liệu', 'Quy hoạch', 'Đào tạo'];
+  const categories = [
+    { label: 'Thông báo', id: 1, type: 'DOC' },
+    { label: 'Tin tức', id: 2, type: 'NEWS' },
+    { label: 'Sự kiện', id: 3, type: 'EVENT' },
+    { label: 'Tài Liệu', id: 4, type: 'DOC' },
+    { label: 'Quy hoạch', id: 5, type: 'NEWS' },
+    { label: 'Đào tạo', id: 6, type: 'EVENT' }
+  ];
 
   const fetchNewsData = async () => {
     setLoading(true);
@@ -62,6 +79,16 @@ export const News: React.FC<NewsProps> = ({ onAdd, onUpdate, onDelete }) => {
     fetchNewsData();
   }, []);
 
+  const handleViewNews = async (id: string) => {
+    setDetailLoading(true);
+    setIsDetailOpen(true);
+    const res = await ApiService.getNewsDetail(id);
+    if (res.success && res.data) {
+      setSelectedNews(res.data);
+    }
+    setDetailLoading(false);
+  };
+
   const filteredNews = useMemo(() => {
     return news.filter(item =>
       item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -81,7 +108,8 @@ export const News: React.FC<NewsProps> = ({ onAdd, onUpdate, onDelete }) => {
     setIsModalOpen(true);
   };
 
-  const handleOpenEdit = (item: NewsItem) => {
+  const handleOpenEdit = (e: React.MouseEvent, item: NewsItem) => {
+    e.stopPropagation();
     setEditingItem(item);
     setFormData({
       title: item.title,
@@ -93,19 +121,67 @@ export const News: React.FC<NewsProps> = ({ onAdd, onUpdate, onDelete }) => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingItem) {
-      onUpdate({ ...editingItem, ...formData });
-      // Tạm thời cập nhật UI local
-      setNews(prev => prev.map(n => n.id === editingItem.id ? { ...n, ...formData } : n));
-    } else {
-      onAdd(formData);
-      // Giả lập ID để hiện local
-      const newItem: NewsItem = { id: Math.random().toString(), ...formData };
-      setNews(prev => [newItem, ...prev]);
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
+      setActionLoading(true);
+      const res = await ApiService.deleteNews(id);
+      if (res.success) {
+        setNews(prev => prev.filter(n => n.id !== id));
+        onDelete(id);
+      } else {
+        alert(res.message || "Không thể xóa bài viết");
+      }
+      setActionLoading(false);
     }
-    setIsModalOpen(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setActionLoading(true);
+
+    const categoryObj = categories.find(c => c.label === formData.category) || categories[1];
+
+    if (editingItem) {
+      const payload = {
+        post_title: formData.title,
+        post_content: formData.content,
+        is_active: 1
+      };
+      const res = await ApiService.updateNews(editingItem.id, payload);
+      if (res.success) {
+        setNews(prev => prev.map(n => n.id === editingItem.id ? {
+          ...n,
+          title: formData.title,
+          content: formData.content,
+          category: formData.category,
+          date: formData.date,
+          imageUrl: formData.imageUrl
+        } : n));
+        onUpdate({ ...editingItem, ...formData });
+        setIsModalOpen(false);
+      } else {
+        alert(res.message || "Cập nhật bài viết thất bại");
+      }
+    } else {
+      const payload = {
+        category_id: categoryObj.id,
+        post_title: formData.title,
+        post_content: formData.content,
+        post_type: categoryObj.type,
+        post_date: formData.date,
+        is_active: 1
+      };
+      const res = await ApiService.createNews(payload);
+      if (res.success) {
+        await fetchNewsData(); // Refresh list to get real data
+        onAdd(formData);
+        setIsModalOpen(false);
+      } else {
+        alert(res.message || "Tạo bài viết thất bại");
+      }
+    }
+    setActionLoading(false);
   };
 
   if (loading) {
@@ -129,8 +205,9 @@ export const News: React.FC<NewsProps> = ({ onAdd, onUpdate, onDelete }) => {
             onClick={fetchNewsData}
             className="p-4 bg-white border border-slate-200 text-slate-500 rounded-2xl hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm"
             title="Làm mới"
+            disabled={actionLoading}
           >
-            <RefreshCcw className="w-5 h-5" />
+            <RefreshCcw className={`w-5 h-5 ${actionLoading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={handleOpenAdd}
@@ -159,7 +236,11 @@ export const News: React.FC<NewsProps> = ({ onAdd, onUpdate, onDelete }) => {
       {/* News List */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredNews.length > 0 ? filteredNews.map((item) => (
-          <article key={item.id} className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col">
+          <article
+            key={item.id}
+            onClick={() => handleViewNews(item.id)}
+            className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col cursor-pointer active:scale-[0.99]"
+          >
             <div className="h-48 overflow-hidden relative bg-slate-100">
               {item.imageUrl ? (
                 <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -187,26 +268,22 @@ export const News: React.FC<NewsProps> = ({ onAdd, onUpdate, onDelete }) => {
               <div className="flex items-center justify-between pt-4 border-t border-slate-50">
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handleOpenEdit(item)}
+                    onClick={(e) => handleOpenEdit(e, item)}
                     className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => {
-                      if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
-                        onDelete(item.id);
-                        setNews(prev => prev.filter(n => n.id !== item.id));
-                      }
-                    }}
+                    onClick={(e) => handleDelete(e, item.id)}
                     className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                    disabled={actionLoading}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
-                <button className="text-xs font-bold text-indigo-600 flex items-center gap-1 group/btn">
-                  Đọc tiếp <Tag className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
-                </button>
+                <div className="text-xs font-bold text-indigo-600 flex items-center gap-1 group/btn">
+                  Đọc tiếp <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                </div>
               </div>
             </div>
           </article>
@@ -218,9 +295,101 @@ export const News: React.FC<NewsProps> = ({ onAdd, onUpdate, onDelete }) => {
         )}
       </div>
 
-      {/* Modal CRUD News */}
+      {/* Modal Detail News */}
+      {isDetailOpen && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-0 md:p-4">
+          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" onClick={() => setIsDetailOpen(false)}></div>
+          <div className="relative bg-white w-full h-full md:h-auto md:max-w-4xl md:rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col">
+
+            {/* Detail Header / Toolbar */}
+            <div className="p-4 md:p-6 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
+              <button
+                onClick={() => setIsDetailOpen(false)}
+                className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" /> <span className="hidden md:inline">Quay lại</span>
+              </button>
+              <div className="flex items-center gap-2">
+                <button className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:text-indigo-600 transition-all border border-transparent hover:border-indigo-100">
+                  <Share2 className="w-5 h-5" />
+                </button>
+                <button className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:text-indigo-600 transition-all border border-transparent hover:border-indigo-100">
+                  <Printer className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setIsDetailOpen(false)}
+                  className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:bg-slate-100 transition-all md:hidden"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              {detailLoading ? (
+                <div className="py-40 flex flex-col items-center justify-center space-y-4">
+                  <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
+                  <p className="text-slate-500 font-black uppercase tracking-widest text-xs">Đang lấy nội dung bài viết...</p>
+                </div>
+              ) : selectedNews ? (
+                <div className="animate-in fade-in duration-500">
+                  {/* Hero Image */}
+                  {(selectedNews.attachments && selectedNews.attachments.length > 0) && (
+                    <div className="w-full h-64 md:h-96 overflow-hidden">
+                      <img
+                        src={selectedNews.attachments[0].file_url}
+                        className="w-full h-full object-cover"
+                        alt={selectedNews.post_title}
+                      />
+                    </div>
+                  )}
+
+                  <div className="max-w-3xl mx-auto p-6 md:p-12 space-y-8">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <span className="px-4 py-1.5 bg-indigo-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest">
+                          {selectedNews.category?.name || selectedNews.post_type_label}
+                        </span>
+                        <span className="text-xs font-bold text-slate-400 flex items-center gap-2">
+                          <Calendar className="w-4 h-4" /> {selectedNews.post_date}
+                        </span>
+                      </div>
+                      <h1 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight">
+                        {selectedNews.post_title}
+                      </h1>
+                    </div>
+
+                    <div className="prose prose-indigo max-w-none text-slate-600 leading-relaxed font-medium">
+                      <div dangerouslySetInnerHTML={{ __html: selectedNews.post_content }} />
+                    </div>
+
+                    <div className="pt-12 border-t border-slate-100">
+                      <div className="flex items-center gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white">
+                          <Newspaper className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-black text-slate-900">Ban Biên Tập BDSDaily</div>
+                          <div className="text-xs text-slate-400 font-medium">Cập nhật lúc: {selectedNews.updated_at}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="py-20 text-center">
+                  <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
+                  <p className="text-slate-500 font-bold">Không thể tải nội dung bài viết này.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal CRUD News (Add/Edit) */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setIsModalOpen(false)}></div>
           <div className="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
             <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
@@ -233,7 +402,7 @@ export const News: React.FC<NewsProps> = ({ onAdd, onUpdate, onDelete }) => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto">
+            <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto custom-scrollbar">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-widest ml-1">Tiêu đề bản tin</label>
                 <input
@@ -254,7 +423,7 @@ export const News: React.FC<NewsProps> = ({ onAdd, onUpdate, onDelete }) => {
                     className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all appearance-none"
                   >
                     {categories.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
+                      <option key={cat.id} value={cat.label}>{cat.label}</option>
                     ))}
                   </select>
                 </div>
@@ -298,8 +467,10 @@ export const News: React.FC<NewsProps> = ({ onAdd, onUpdate, onDelete }) => {
               <div className="pt-4">
                 <button
                   type="submit"
-                  className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-bold py-5 rounded-2xl shadow-xl transition-all active:scale-[0.98]"
+                  disabled={actionLoading}
+                  className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-bold py-5 rounded-2xl shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                 >
+                  {actionLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {editingItem ? 'Lưu thay đổi' : 'Đăng bản tin'}
                 </button>
               </div>

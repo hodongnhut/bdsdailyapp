@@ -37,7 +37,7 @@ interface PropertyDataProps {
 }
 
 export const PropertyData: React.FC<PropertyDataProps> = ({ properties, onAdd, onUpdate, onDelete }) => {
-  const [isFilterVisible, setIsFilterVisible] = useState(true);
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<PropertyItem | null>(null);
 

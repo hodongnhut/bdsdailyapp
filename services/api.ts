@@ -80,6 +80,121 @@ export const ApiService = {
         }
     },
     /**
+ * Lấy chi tiết một bài viết
+ */
+    async getNewsDetail(id: string): Promise<ApiResponse<any>> {
+        try {
+            const response = await fetch(`/api/news/view?id=${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const resData = await response.json();
+            return {
+                success: resData.status,
+                message: resData.msg,
+                data: resData.data
+            };
+        } catch (error) {
+            console.error("ApiService.getNewsDetail failed:", error);
+            return {
+                success: false,
+                message: error instanceof Error ? error.message : "Không thể tải chi tiết bài viết"
+            };
+        }
+    },
+    /**
+    * Tạo bài viết mới
+   */
+    async createNews(data: any): Promise<ApiResponse<any>> {
+        try {
+            const response = await fetch('/api/news/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                },
+                body: JSON.stringify(data)
+            });
+
+            const resData = await response.json();
+            return {
+                success: resData.status,
+                message: resData.msg,
+                data: resData.data
+            };
+        } catch (error) {
+            console.error("ApiService.createNews failed:", error);
+            return {
+                success: false,
+                message: error instanceof Error ? error.message : "Không thể tạo bài viết"
+            };
+        }
+    },
+
+    /**
+     * Cập nhật bài viết
+     */
+    async updateNews(id: string, data: any): Promise<ApiResponse<any>> {
+        try {
+            const response = await fetch(`/api/news/update?id=${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                },
+                body: JSON.stringify(data)
+            });
+
+            const resData = await response.json();
+            return {
+                success: resData.status,
+                message: resData.msg,
+                data: resData.data
+            };
+        } catch (error) {
+            console.error("ApiService.updateNews failed:", error);
+            return {
+                success: false,
+                message: error instanceof Error ? error.message : "Không thể cập nhật bài viết"
+            };
+        }
+    },
+
+    /**
+     * Xóa bài viết (Ẩn bài viết)
+     */
+    async deleteNews(id: string): Promise<ApiResponse<any>> {
+        try {
+            const response = await fetch(`/api/news/delete?id=${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                }
+            });
+
+            const resData = await response.json();
+            return {
+                success: resData.status,
+                message: resData.msg,
+                data: resData.data
+            };
+        } catch (error) {
+            console.error("ApiService.deleteNews failed:", error);
+            return {
+                success: false,
+                message: error instanceof Error ? error.message : "Không thể xóa bài viết"
+            };
+        }
+    },
+
+
+    /**
      * Lưu vị trí hiện tại của người dùng
      */
     async saveLocation(payload: LocationPayload): Promise<ApiResponse> {
