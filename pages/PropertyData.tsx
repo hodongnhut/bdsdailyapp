@@ -309,6 +309,13 @@ export const PropertyData: React.FC<PropertyDataProps> = ({ onAdd, onUpdate, onD
                   </button>
                 ))}
               </div>
+
+              <div className="w-px h-8 bg-slate-100 mx-4 hidden xl:block"></div>
+
+              <div className="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-200 shadow-inner">
+                <button onClick={() => setFilters({ ...filters, fengShui: 'dong_tu_trach' })} className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${filters.fengShui === 'dong_tu_trach' ? 'bg-white text-indigo-600 shadow-md' : 'text-slate-400'}`}>Đông Tứ Trạch</button>
+                <button onClick={() => setFilters({ ...filters, fengShui: 'tay_tu_trach' })} className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${filters.fengShui === 'tay_tu_trach' ? 'bg-white text-indigo-600 shadow-md' : 'text-slate-400'}`}>Tây Tứ Trạch</button>
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-6">
