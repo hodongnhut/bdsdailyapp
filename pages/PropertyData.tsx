@@ -235,6 +235,17 @@ export const PropertyData: React.FC<PropertyDataProps> = ({ onAdd, onUpdate, onD
                     <input className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-xs outline-none shadow-inner" value={filters.lotNumber} onChange={e => setFilters({ ...filters, lotNumber: e.target.value })} />
                   </div>
                 </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between px-1">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Rộng (m)</label>
+                    <span className="text-[10px] font-bold text-indigo-500">Min - Max</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <input placeholder="Min" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-center" value={filters.priceMin} onChange={e => setFilters({ ...filters, priceMin: e.target.value })} />
+                    <div className="w-4 h-px bg-slate-300"></div>
+                    <input placeholder="Max" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-center" value={filters.priceMax} onChange={e => setFilters({ ...filters, priceMax: e.target.value })} />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -244,6 +255,17 @@ export const PropertyData: React.FC<PropertyDataProps> = ({ onAdd, onUpdate, onD
                 <Maximize2 className="w-4 h-4 text-indigo-500" /> 3. Thông số & Giá trị
               </h3>
               <div className="grid grid-cols-1 gap-6">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between px-1">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Dài (m)</label>
+                    <span className="text-[10px] font-bold text-indigo-500">Min - Max</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <input placeholder="Min" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-center" value={filters.priceMin} onChange={e => setFilters({ ...filters, priceMin: e.target.value })} />
+                    <div className="w-4 h-px bg-slate-300"></div>
+                    <input placeholder="Max" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-center" value={filters.priceMax} onChange={e => setFilters({ ...filters, priceMax: e.target.value })} />
+                  </div>
+                </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between px-1">
                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Khoảng Giá (Tỷ)</label>
@@ -318,39 +340,39 @@ export const PropertyData: React.FC<PropertyDataProps> = ({ onAdd, onUpdate, onD
 
       {/* PROPERTY LISTING */}
       <div className="space-y-6">
-        {/* Search Header - Refined UI */}
-        <div className="bg-white rounded-[2rem] border border-slate-200 p-6 md:p-8 shadow-sm flex flex-col md:flex-row gap-6 items-center justify-between mx-2">
+        {/* Search Header - Refined UI - Mobile Optimized */}
+        <div className="bg-white rounded-[2rem] border border-slate-200 p-4 sm:p-6 md:p-8 shadow-sm flex flex-col md:flex-row gap-4 sm:gap-6 items-center justify-between mx-2">
           <div className="relative w-full md:max-w-xl group">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
+            <Search className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
             <input
               type="text"
-              placeholder="Tìm theo Điện Thoại | Số Nhà | Đường Phố | Khu Vực..."
+              placeholder="Tìm Điện Thoại | Số Nhà | Đường | Khu Vực..."
               value={filters.generalSearch}
               onChange={e => {
                 setFilters(prev => ({ ...prev, generalSearch: e.target.value }));
                 setCurrentPage(1);
               }}
-              className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:bg-white focus:border-indigo-500 outline-none transition-all font-bold text-sm"
+              className="w-full pl-11 sm:pl-14 pr-4 sm:pr-6 py-3.5 sm:py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:bg-white focus:border-indigo-500 outline-none transition-all font-bold text-xs sm:text-sm"
             />
           </div>
-          <div className="flex items-center gap-8 w-full md:w-auto justify-between md:justify-end">
-            <div className="flex items-center gap-4">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Dòng hiển thị:</span>
+          <div className="flex flex-wrap items-center gap-4 sm:gap-8 w-full md:w-auto justify-between md:justify-end border-t border-slate-50 pt-3 md:border-t-0 md:pt-0">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Dòng:</span>
               <select
                 value={rowsPerPage}
                 onChange={e => {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl font-black text-xs text-slate-900 outline-none hover:bg-white transition-all cursor-pointer shadow-sm"
+                className="px-3 sm:px-4 py-2 sm:py-2.5 bg-slate-50 border border-slate-100 rounded-xl font-black text-[10px] sm:text-xs text-slate-900 outline-none hover:bg-white transition-all cursor-pointer shadow-sm"
               >
                 <option value={20}>20 dòng</option>
                 <option value={50}>50 dòng</option>
                 <option value={100}>100 dòng</option>
               </select>
             </div>
-            <div className="hidden xl:flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-xl border border-indigo-100">
-              <span className="text-[10px] font-black text-indigo-600 uppercase">TỔNG: {totalItems}</span>
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-indigo-50 rounded-xl border border-indigo-100">
+              <span className="text-[9px] sm:text-[10px] font-black text-indigo-600 uppercase">TỔNG: {totalItems}</span>
             </div>
           </div>
         </div>
