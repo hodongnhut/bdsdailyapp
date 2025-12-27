@@ -233,7 +233,7 @@ const App: React.FC = () => {
         <div className="mx-auto p-4 md:p-8 lg:p-12 max-w-[1600px]">
           {currentView === 'dashboard' && <Dashboard users={users} currentUser={currentUser} onAddUser={() => { setEditingUser(null); setUserFormData(initialFormState); setIsModalOpen(true); }} onEditUser={(user) => { setEditingUser(user); setUserFormData({ ...user, password: '' }); setIsModalOpen(true); }} onDeleteUser={(id) => setUsers(users.filter(u => u.id !== id))} />}
           {currentView === 'property_data' && <PropertyData properties={properties} onAdd={() => { }} onUpdate={() => { }} onDelete={() => { }} />}
-          {currentView === 'news' && <News news={news} onAdd={() => { }} onUpdate={() => { }} onDelete={() => { }} />}
+          {currentView === 'news' && <News news={news} currentUser={currentUser} onAdd={() => { }} onUpdate={() => { }} onDelete={() => { }} />}
           {currentView === 'favorites' && <Favorites properties={properties} onRemoveFavorite={() => { }} />}
           {currentView === 'planning_map' && <PlanningMap />}
           {currentView === 'sales_directory' && <SalesDirectory users={users} />}
